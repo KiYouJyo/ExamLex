@@ -121,7 +121,7 @@
         <TextBlock Text="关于" Margin="20,12,0,8" FontWeight="Bold" FontSize="14"/>
         <labs:SettingsExpander x:Name="AboutSettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch">
   <labs:SettingsExpander.HeaderIcon><FontIcon Glyph="&#xE946;"/></labs:SettingsExpander.HeaderIcon>
-  <labs:SettingsExpander.Header><TextBlock Text="ExamLex 0.1.2"/></labs:SettingsExpander.Header>
+  <labs:SettingsExpander.Header><TextBlock x:Name="AppVersionText" Text="ExamLex"/></labs:SettingsExpander.Header>
   <labs:SettingsExpander.Description><TextBlock Text="ExamLex 是一款开源的离线英语考试词典" TextWrapping="Wrap"/></labs:SettingsExpander.Description>
   <Button Content="检查更新" Height="34" Click="OnAppUpdateClicked"/>
           

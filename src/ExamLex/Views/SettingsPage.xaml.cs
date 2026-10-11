@@ -25,6 +25,8 @@ public sealed partial class SettingsPage : Page
         Action dictionaryChanged, Action backHome)
     {
         _ready = false;
+        var version = typeof(SettingsPage).Assembly.GetName().Version;
+        AppVersionText.Text = version is null ? "ExamLex" : $"ExamLex {version.Major}.{version.Minor}.{version.Build}";
         _settings=settings;
         _lexicon=new LexiconUpdateService(store);
         _applySettings=applySettings;
@@ -84,7 +86,7 @@ public sealed partial class SettingsPage : Page
         {
             var result=await AppUpdateService.CheckAsync();
             AppUpdateStatus.Text=result.Newer ? $"发现新版本 {result.Version}，即将打开发布页"
-                : $"当前版本 0.1.2；{result.Version}。";
+                : $"{AppVersionText.Text}；{result.Version}。";
             if(result.Newer) await Launcher.LaunchUriAsync(new Uri(result.Url));
         }
         catch(Exception ex){AppUpdateStatus.Text="检查失败："+ex.Message;}

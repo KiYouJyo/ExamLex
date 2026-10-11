@@ -20,6 +20,6 @@ public static class AppUpdateService
         string version=doc.RootElement.GetProperty("tag_name").GetString() ?? "";
         string url=doc.RootElement.GetProperty("html_url").GetString() ?? "https://github.com/KiYouJyo/ExamLex/releases";
         return (version,url, Version.TryParse(version.TrimStart('v'),out var remote) &&
-            remote>new Version(0,1,1));
+            remote>(typeof(AppUpdateService).Assembly.GetName().Version ?? new Version(0,1,0)));
     }
 }
