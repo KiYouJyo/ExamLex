@@ -13,7 +13,7 @@ Windows 10 19041+ or Windows 11, Visual Studio Windows App SDK workload and .NET
 ```powershell
 dotnet restore ExamLex.slnx
 dotnet test tests/ExamLex.Core.Tests/ExamLex.Core.Tests.csproj -c Release
-dotnet build src/ExamLex/ExamLex.csproj -c Release -p:Platform=x64
+msbuild src/ExamLex/ExamLex.csproj /restore /p:Configuration=Release /p:Platform=x64
 ```
 
 The TOEFL 2026 and IELTS tools average already scaled section scores; TOEIC L&R adds two scaled sections. This app does not predict scores from raw question counts or issue official score reports.

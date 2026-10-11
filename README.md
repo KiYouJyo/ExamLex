@@ -33,7 +33,7 @@ ExamLex 是基于 **WinUI 3** 的本地优先桌面应用。主页布局参考�
 ```powershell
 dotnet restore ExamLex.slnx
 dotnet test tests/ExamLex.Core.Tests/ExamLex.Core.Tests.csproj -c Release
-dotnet build src/ExamLex/ExamLex.csproj -c Release -p:Platform=x64
+msbuild src/ExamLex/ExamLex.csproj /restore /p:Configuration=Release /p:Platform=x64
 ```
 
 在 Visual Studio 打开 `ExamLex.slnx`，选择 **ExamLex** 为启动项目，使用 **x64** 运行。当前不包含 MSIX、商店签名或自动更新；发布包将在后续阶段建立。

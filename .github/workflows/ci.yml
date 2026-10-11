@@ -30,6 +30,14 @@ jobs:
           $exit = $LASTEXITCODE
           Get-Content xaml-build.log | Select-String -Pattern 'error|exception|WMC|XamlCompiler|fatal' -Context 3,2 | Select-Object -Last 160
           exit $exit
+      - name: Upload unsigned WinUI development build
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ExamLex-win-x64-dev
+          path: src/ExamLex/bin/x64/Release/
+          if-no-files-found: error
+          retention-days: 14
       - name: Inspect XAML outputs on failure
         if: failure()
         shell: pwsh

@@ -13,7 +13,7 @@ Windows 10 19041+／Windows 11、.NET 10 SDK と WinUI 3 開発環境が必要�
 ```powershell
 dotnet restore ExamLex.slnx
 dotnet test tests/ExamLex.Core.Tests/ExamLex.Core.Tests.csproj -c Release
-dotnet build src/ExamLex/ExamLex.csproj -c Release -p:Platform=x64
+msbuild src/ExamLex/ExamLex.csproj /restore /p:Configuration=Release /p:Platform=x64
 ```
 
 試験機関が公表する正式スコアではなく、入力した各セクションのスコアから合計を計算します。詳細は [中文说明](README.md)、[設計](docs/ARCHITECTURE.md)、[計画](docs/ROADMAP.md) を参照してください。

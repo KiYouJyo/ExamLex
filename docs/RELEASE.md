@@ -8,3 +8,5 @@ The current 0.1.0 repository targets Windows WinUI 3 x64 builds without a signed
 5. Run score unit tests and WinUI Windows CI checks before tagging a release.
 
 This document is not a claim that binaries or Microsoft Store releases already exist.
+
+CI now produces an unsigned, unpackaged `ExamLex-win-x64-dev` artifact when the Windows MSBuild and core tests succeed. This is a **development build**, not a distributable installer; compatible Windows App SDK Runtime is required. The artifact is retained for 14 days.
