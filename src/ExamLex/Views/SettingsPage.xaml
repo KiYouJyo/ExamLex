@@ -317,12 +317,12 @@
 <Button Height="34" Background="Transparent" Click="OnSourceClicked">
 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"><FontIcon Glyph="&#xE8A7;" FontSize="16" Margin="0,0,8,0"/><TextBlock Text="GitHub 存储库" VerticalAlignment="Center" FontSize="13" Margin="0,0,8,0"/><FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A7;" FontSize="14"/></StackPanel></Button></labs:SettingsCard>
 <labs:SettingsCard HorizontalAlignment="Stretch"><labs:SettingsCard.Description>
-<StackPanel Spacing="2"><TextBlock Text="离线词典数据来自 ExamLex-Lexicon"/><TextBlock x:Name="DatabaseVersionText" Text="未安装" FontSize="11" Opacity="0.6"/><TextBlock x:Name="DatabaseUpdateStatus" Text="可单独检查词库更新" FontSize="11" Opacity="0.6" TextWrapping="Wrap"/></StackPanel>
+<StackPanel Spacing="2"><TextBlock Text="离线词典数据来自 ExamLex-Lexicon"/><TextBlock x:Name="DatabaseVersionText" Text="未安装" FontSize="11" Opacity="0.6" Visibility="Collapsed"/><TextBlock x:Name="DatabaseUpdateStatus" Text="可单独检查词库更新" FontSize="11" Opacity="0.6" TextWrapping="Wrap" Visibility="Collapsed"/></StackPanel>
 </labs:SettingsCard.Description><Button x:Name="DatabaseUpdateButton" Height="34" Click="OnDatabaseUpdateClicked">
 <StackPanel Orientation="Horizontal"><TextBlock Text="检查更新" VerticalAlignment="Center" FontSize="13" Margin="0,0,8,0"/><FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A7;" FontSize="14"/></StackPanel>
 </Button></labs:SettingsCard></labs:SettingsExpander.Items></labs:SettingsExpander>
 
-<TextBlock x:Name="AppUpdateStatus" Text="软件和词库更新互相独立" FontSize="11" Opacity="0.5" Margin="20,6,16,0" TextWrapping="Wrap"/><TextBlock x:Name="CopyrightHeaderTextBlock" Text="©2026 ExamLex contributors · Flint UI © sh0ckj0ckey" FontSize="12" FontFamily="Consolas" FontWeight="Light" Opacity="0.5" Margin="20,8,0,8"/>
+<TextBlock x:Name="CopyrightHeaderTextBlock" Text="©2026 ExamLex contributors · Flint UI © sh0ckj0ckey" FontSize="12" FontFamily="Consolas" FontWeight="Light" Opacity="0.5" Margin="20,8,0,8"/>
 
             </StackPanel>
         </ScrollViewer>

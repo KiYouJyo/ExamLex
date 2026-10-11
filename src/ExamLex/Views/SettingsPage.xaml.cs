@@ -100,7 +100,7 @@ public sealed partial class SettingsPage : Page
             player.Play();
             await Task.Delay(1200);
         }
-        catch (Exception ex) { AppUpdateStatus.Text="朗读失败："+ex.Message; }
+        catch (Exception ex) { Debug.WriteLine("朗读失败："+ex.Message); }
     }
 
     private void OnBackClicked(object sender, RoutedEventArgs e) => _backHome?.Invoke();
@@ -120,18 +120,45 @@ public sealed partial class SettingsPage : Page
     private async void OnSourceClicked(object sender,RoutedEventArgs e) =>
         await Launcher.LaunchUriAsync(new Uri("https://github.com/KiYouJyo/ExamLex"));
 
-    private async void OnAppUpdateClicked(object sender,RoutedEventArgs e)
+    private async void OnAppUpdateClicked(object sender, RoutedEventArgs e)
     {
-        AppUpdateStatus.Text="正在检查软件版本…";
         try
         {
             var result=await AppUpdateService.CheckAsync();
-            AppUpdateStatus.Text=result.Newer ? $"发现新版本 {result.Version}，即将打开发布页"
-                : $"{AppVersionText.Text}；{result.Version}。";
-            if(result.Newer) await Launcher.LaunchUriAsync(new Uri(result.Url));
+            if(result.Newer)
+            {
+                await Launcher.LaunchUriAsync(new Uri(result.Url));
+                return;
+            }
+            var dialog=new ContentDialog
+            {
+                XamlRoot=XamlRoot, Title="ExamLex · 检查更新",
+                Content=new TextBlock{Text=$"当前 {AppVersionText.Text}。{result.Version}。",TextWrapping=TextWrapping.Wrap},
+                CloseButtonText="确定"
+            };
+            await dialog.ShowAsync();
         }
-        catch(Exception ex){AppUpdateStatus.Text="检查失败："+ex.Message;}
+        catch(Exception ex)
+        {
+            await new ContentDialog
+            {
+                XamlRoot=XamlRoot,Title="检查更新失败",
+                Content=new TextBlock{Text=ex.Message,TextWrapping=TextWrapping.Wrap},
+                CloseButtonText="确定"
+            }.ShowAsync();
+        }
     }
+
+    private async Task ShowLexiconMessageAsync(string message)
+    {
+        await new ContentDialog
+        {
+            XamlRoot=XamlRoot,Title="ExamLex-Lexicon",
+            Content=new TextBlock{Text=message,TextWrapping=TextWrapping.Wrap},
+            CloseButtonText="确定"
+        }.ShowAsync();
+    }
+
     private async void OnDatabaseUpdateClicked(object sender,RoutedEventArgs e)
     {
         if(_lexicon is null)return;
@@ -142,7 +169,7 @@ public sealed partial class SettingsPage : Page
             var available=await _lexicon.CheckAsync();
             if(!available.UpdateAvailable)
             {
-                DatabaseUpdateStatus.Text=$"已是最新词库 {available.Version}（{available.WordCount} 词）";
+                await ShowLexiconMessageAsync($"已是最新词库 {available.Version}（{available.WordCount} 词）。");
                 return;
             }
             var dialog = new ContentDialog
@@ -165,10 +192,10 @@ public sealed partial class SettingsPage : Page
             DatabaseUpdateStatus.Text="正在下载并校验数据库，请稍候…";
             await _lexicon.InstallAsync(available);
             DatabaseVersionText.Text="本机词库："+_lexicon.InstalledVersion;
-            DatabaseUpdateStatus.Text=$"数据库更新完成 · {available.WordCount} 词。返回主页即可查词。";
+            await ShowLexiconMessageAsync($"数据库更新完成 · {available.WordCount} 词。返回主页即可查词。");
             _dictionaryChanged?.Invoke();
         }
-        catch(Exception ex){DatabaseUpdateStatus.Text="数据库检查/更新失败："+ex.Message;}
+        catch(Exception ex){await ShowLexiconMessageAsync("数据库检查/更新失败："+ex.Message);}
         finally{DatabaseUpdateButton.IsEnabled=true;}
     }
 }
