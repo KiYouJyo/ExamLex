@@ -344,7 +344,7 @@ public sealed partial class MainWindow : Window
         return texts.Count == 0 ? null : string.Join("；", texts);
     }
 
-    private static string FormatFormType(string type) => type.Replace(';', ' · ')
+    private static string FormatFormType(string type) => type.Replace(";", " · ")
         .Replace('-', ' ');
 
     private void AddRelations(
