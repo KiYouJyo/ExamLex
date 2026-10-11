@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="ExamLex.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Title="ExamLex">
+    <Grid x:Name="Root" Background="#192222" RequestedTheme="Dark">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="58"/>
+            <RowDefinition Height="108"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="74"/>
+        </Grid.RowDefinitions>
+
+        <!-- Dark Flint-inspired title, intentionally reimplemented for ExamLex. -->
+        <Grid x:Name="TitleDragRegion" Grid.Row="0" Background="Transparent">
+            <TextBlock Text="ExamLex" FontFamily="Georgia" FontSize="30" FontWeight="Bold"
+                       Foreground="#F6F6F6" Margin="35,8,0,0" VerticalAlignment="Center"/>
+        </Grid>
+
+        <Border Grid.Row="1" Margin="29,18,29,20" CornerRadius="12"
+                Background="#263130" BorderBrush="#313C3A" BorderThickness="3">
+            <TextBox x:Name="SearchBox" PlaceholderText="输入要查询的英语单词…"
+                     TextChanged="OnSearchTextChanged" BorderThickness="0"
+                     Background="Transparent" Foreground="#F7F7F7"
+                     FontSize="28" FontWeight="SemiBold" Padding="18,8"
+                     VerticalContentAlignment="Center"/>
+        </Border>
+
+        <Grid Grid.Row="2" Padding="30,0">
+            <StackPanel x:Name="EmptyState" HorizontalAlignment="Center"
+                        VerticalAlignment="Center" Spacing="12">
+                <FontIcon Glyph="&#xE8F1;" FontSize="43" Foreground="#6E807D"/>
+                <TextBlock Text="ExamLex 词典" FontSize="23" FontWeight="SemiBold"
+                           Foreground="#D7DFDB" HorizontalAlignment="Center"/>
+                <TextBlock x:Name="EmptyDescription" Text="当前没有预装单词。词库已清空，等待后续导入。"
+                           TextWrapping="Wrap" TextAlignment="Center"
+                           Foreground="#9EAEAA" MaxWidth="460"/>
+            </StackPanel>
+            <ScrollViewer x:Name="ResultsScroll" VerticalScrollBarVisibility="Auto"
+                          Visibility="Collapsed">
+                <StackPanel x:Name="ResultsPanel" Spacing="12" Padding="0,8,0,18"/>
+            </ScrollViewer>
+        </Grid>
+
+        <Grid Grid.Row="3" Background="#1B2625">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Border Height="1" VerticalAlignment="Top" Background="#35413E" Grid.ColumnSpan="5"/>
+            <Button Grid.Column="0" Click="OnSettingsClicked" Width="56" Height="52"
+                    Margin="18,10,0,8" Background="Transparent" BorderThickness="0"
+                    ToolTipService.ToolTip="设置">
+                <FontIcon Glyph="&#xE713;" FontSize="27" Foreground="#D6E2DE"/>
+            </Button>
+
+            <!-- Explicit user-requested location: left of the Glossary icon. -->
+            <Button x:Name="CalculatorButton" Grid.Column="2" Click="OnCalculatorClicked"
+                    AutomationProperties.Name="TOEFL IELTS TOEIC 分数计算器"
+                    Margin="5,10,5,8" Width="56" Height="52"
+                    Background="Transparent" BorderThickness="0"
+                    ToolTipService.ToolTip="托福 / 雅思 / 托业算分器">
+                <FontIcon Glyph="&#xE8EF;" FontSize="24" Foreground="#D6E2DE"/>
+            </Button>
+            <Button Grid.Column="3" Click="OnGlossaryClicked" Width="56" Height="52"
+                    Margin="5,10,5,8" Background="Transparent" BorderThickness="0"
+                    ToolTipService.ToolTip="生词本">
+                <FontIcon Glyph="&#xE8F1;" FontSize="24" Foreground="#D6E2DE"/>
+            </Button>
+            <ToggleButton x:Name="PinToggle" Grid.Column="4" Click="OnPinClicked"
+                          Width="56" Height="52" Margin="5,10,15,8"
+                          Background="Transparent" BorderThickness="0"
+                          ToolTipService.ToolTip="窗口置顶">
+                <FontIcon Glyph="&#xE718;" FontSize="24" Foreground="#D6E2DE"/>
+            </ToggleButton>
+        </Grid>
+    </Grid>
+</Window>

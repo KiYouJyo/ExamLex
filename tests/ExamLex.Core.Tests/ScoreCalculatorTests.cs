@@ -1,4 +1,5 @@
 using ExamLex.Core;
+using Xunit;
 
 namespace ExamLex.Core.Tests;
 

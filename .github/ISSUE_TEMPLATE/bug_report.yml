@@ -1,0 +1,14 @@
+name: Bug report
+description: Report an ExamLex defect
+title: "[Bug] "
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Problem and reproduction steps
+    validations:
+      required: true
+  - type: textarea
+    id: platform
+    attributes:
+      label: Windows version and ExamLex build
