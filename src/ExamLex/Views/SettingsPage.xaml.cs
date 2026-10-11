@@ -2,6 +2,7 @@ using ExamLex.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Windows.System;
+using System.Diagnostics;
 
 namespace ExamLex.Views;
 
@@ -12,16 +13,18 @@ public sealed partial class SettingsPage : Page
     private Action? _applySettings;
     private Action? _dictionaryChanged;
     private bool _ready;
+    private Action? _backHome;
     public SettingsPage() => InitializeComponent();
 
     public void Initialize(AppSettings settings, DictionaryStore store, Action applySettings,
-        Action dictionaryChanged)
+        Action dictionaryChanged, Action backHome)
     {
         _ready = false;
         _settings=settings;
         _lexicon=new LexiconUpdateService(store);
         _applySettings=applySettings;
         _dictionaryChanged=dictionaryChanged;
+        _backHome=backHome;
         ThemeBox.SelectedIndex=Math.Clamp(settings.Appearance,0,2);
         BackdropBox.SelectedIndex=Math.Clamp(settings.Backdrop,0,2);
         SearchStyleBox.SelectedIndex=Math.Clamp(settings.SearchStyle,0,2);
@@ -52,6 +55,20 @@ public sealed partial class SettingsPage : Page
     private void OnVolumeChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         => SavePreferences();
 
+    private void OnBackClicked(object sender, RoutedEventArgs e) => _backHome?.Invoke();
+
+    private void OnGlossaryFolderClicked(object sender, RoutedEventArgs e)
+    {
+        string directory = Path.GetDirectoryName(AppSettings.FilePath)!;
+        Directory.CreateDirectory(directory);
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = "explorer.exe",
+            Arguments = $"\"{directory}\"",
+            UseShellExecute = true
+        });
+    }
+
     private async void OnSourceClicked(object sender,RoutedEventArgs e) =>
         await Launcher.LaunchUriAsync(new Uri("https://github.com/KiYouJyo/ExamLex"));
 
@@ -62,7 +79,7 @@ public sealed partial class SettingsPage : Page
         {
             var result=await AppUpdateService.CheckAsync();
             AppUpdateStatus.Text=result.Newer ? $"发现新版本 {result.Version}，即将打开发布页"
-                : $"当前版本 0.1.1；{result.Version}。";
+                : $"当前版本 0.1.2；{result.Version}。";
             if(result.Newer) await Launcher.LaunchUriAsync(new Uri(result.Url));
         }
         catch(Exception ex){AppUpdateStatus.Text="检查失败："+ex.Message;}

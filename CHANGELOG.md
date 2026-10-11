@@ -1,4 +1,13 @@
 # Changelog
+
+## [0.1.2] - 2026-10-11
+- Fix first-window physical pixel sizing via GetDpiForWindow instead of pre-layout XamlRoot.RasterizationScale; clamp to monitor work area and center.
+- Compact search/title/footer sizing and ensure that main app footer does not intrude into settings page.
+- Replace generic settings mockup with layout port of Flint3 settings: original section order, 96-DIP brand banner, CommunityToolkit SettingsCard/SettingsExpander visual system, expandable About card, and native back toolbar.
+- Preserve ExamLex app updater and independent Lexicon database updater; omit original Flint feedback row as requested.
+- Include Flint MPL-2.0 notice and full license for adapted settings layout. Unsupported system hotkeys, autostart and tray settings remain disabled pending implementation.
+- Produce signed 0.1.2.0 MSIX acceptance artifact.
+
 ## [0.1.1] - 2026-10-11
 - Smaller DPI-aware startup window; native per-monitor rendering.
 - Internal calculator page for TOEFL iBT (2026) and IELTS; approximate IELTS CEFR displayed. TOEIC removed from calculator.

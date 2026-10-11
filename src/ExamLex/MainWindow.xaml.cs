@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Runtime.InteropServices;
 using ExamLex.Core;
 using ExamLex.Services;
 using ExamLex.Views;
@@ -37,15 +38,28 @@ public sealed partial class MainWindow : Window
         Activated+=OnWindowActivated;
     }
 
-    private void OnWindowActivated(object sender,WindowActivatedEventArgs e)
+    [DllImport("user32.dll")]
+    private static extern uint GetDpiForWindow(IntPtr hwnd);
+
+    private void OnWindowActivated(object sender, WindowActivatedEventArgs e)
     {
-        if(_sized)return;
-        _sized=true;
-        // AppWindow.Resize uses physical pixels, unlike WinUI's effective pixels (DIPs).
-        // Honor per-monitor DPI rather than creating a huge 1120x746-DIP window.
-        double scale=Root.XamlRoot?.RasterizationScale ?? 1.0;
-        AppWindow.Resize(new Windows.Graphics.SizeInt32(
-            (int)Math.Round(800*scale),(int)Math.Round(560*scale)));
+        if (_sized) return;
+        _sized = true;
+
+        // AppWindow takes *physical* pixels. XamlRoot.RasterizationScale can
+        // still be 1 during the first Activated event on a high-DPI display.
+        // Read the actual HWND DPI instead, then size in effective pixels.
+        IntPtr hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+        uint dpi = GetDpiForWindow(hwnd);
+        double scale = dpi >= 96 ? dpi / 96d : 1d;
+
+        var display = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Nearest);
+        var work = display.WorkArea;
+        int width = Math.Min((int)Math.Round(840 * scale), Math.Max(440, work.Width - 32));
+        int height = Math.Min((int)Math.Round(620 * scale), Math.Max(340, work.Height - 32));
+        int x = work.X + Math.Max(0, (work.Width - width) / 2);
+        int y = work.Y + Math.Max(0, (work.Height - height) / 2);
+        AppWindow.MoveAndResize(new Windows.Graphics.RectInt32(x, y, width, height));
     }
 
     private void ApplyPreferences()
@@ -83,14 +97,16 @@ public sealed partial class MainWindow : Window
     {
         SearchHost.Visibility=Visibility.Collapsed;
         HomePanel.Visibility=Visibility.Collapsed;
+        Footer.Visibility=Visibility.Collapsed;
         ContentFrame.Visibility=Visibility.Visible;
         BackButton.Visibility=Visibility.Visible;
         HeaderTextBlock.Text=title;
         HeaderTextBlock.FontFamily=new Microsoft.UI.Xaml.Media.FontFamily("Segoe UI");
         HeaderTextBlock.FontSize=19;
+        HeaderTextBlock.Margin=new Thickness(4,0,0,0);
         ContentFrame.Navigate(type);
         if(ContentFrame.Content is SettingsPage settings)
-            settings.Initialize(_preferences,_dictionary,ApplyPreferences,OnDictionaryChanged);
+            settings.Initialize(_preferences,_dictionary,ApplyPreferences,OnDictionaryChanged,ShowHome);
     }
     private void OnDictionaryChanged()
     {
@@ -100,12 +116,14 @@ public sealed partial class MainWindow : Window
     {
         ContentFrame.Visibility=Visibility.Collapsed;
         ContentFrame.Content=null;
+        Footer.Visibility=Visibility.Visible;
         HomePanel.Visibility=Visibility.Visible;
         SearchHost.Visibility=Visibility.Visible;
         BackButton.Visibility=Visibility.Collapsed;
         HeaderTextBlock.Text="ExamLex";
         HeaderTextBlock.FontFamily=new Microsoft.UI.Xaml.Media.FontFamily("Georgia");
-        HeaderTextBlock.FontSize=25;
+        HeaderTextBlock.FontSize=23;
+        HeaderTextBlock.Margin=new Thickness(27,0,0,0);
         if(_preferences.AutoClearSearch) SearchBox.Text="";
         _ = RefreshSearchAsync(SearchBox.Text);
     }

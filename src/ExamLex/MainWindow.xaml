@@ -5,13 +5,13 @@
     Title="ExamLex">
     <Grid x:Name="Root" Background="#192222" RequestedTheme="Dark">
       <Grid.RowDefinitions>
-        <RowDefinition Height="54"/>
-        <RowDefinition Height="94"/>
+        <RowDefinition Height="52"/>
+        <RowDefinition Height="78"/>
         <RowDefinition Height="*"/>
-        <RowDefinition Height="66"/>
+        <RowDefinition Height="58"/>
       </Grid.RowDefinitions>
       <Grid Grid.Row="0">
-        <Grid.ColumnDefinitions><ColumnDefinition Width="50"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+        <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
         <Button x:Name="BackButton" Grid.Column="0" Visibility="Collapsed"
                 Margin="10,5,0,5" Width="38" Height="38" BorderThickness="0"
                 Background="Transparent" Click="OnBackClicked"
@@ -20,36 +20,36 @@
         </Button>
         <Grid x:Name="TitleDragRegion" Grid.Column="1" Background="Transparent">
           <TextBlock x:Name="HeaderTextBlock" Text="ExamLex" FontFamily="Georgia"
-                     FontSize="25" FontWeight="Bold" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                     FontSize="23" FontWeight="Bold" VerticalAlignment="Center" Margin="27,0,0,0"/>
         </Grid>
       </Grid>
 
-      <Border x:Name="SearchHost" Grid.Row="1" Margin="26,10,26,13"
+      <Border x:Name="SearchHost" Grid.Row="1" Margin="24,8,24,10"
               CornerRadius="12" BorderThickness="2"
               Background="#263130" BorderBrush="#313C3A">
         <TextBox x:Name="SearchBox" PlaceholderText="输入要查询的英语单词…"
                  TextChanged="OnSearchTextChanged" BorderThickness="0"
-                 Background="Transparent" FontSize="22" FontWeight="SemiBold"
-                 Padding="14,6" VerticalContentAlignment="Center"/>
+                 Background="Transparent" FontSize="19" FontWeight="SemiBold"
+                 Padding="12,2" VerticalContentAlignment="Center"/>
       </Border>
 
-      <Grid x:Name="HomePanel" Grid.Row="2" Padding="26,0">
+      <Grid x:Name="HomePanel" Grid.Row="2" Padding="24,0">
         <StackPanel x:Name="EmptyState" HorizontalAlignment="Center"
-                    VerticalAlignment="Center" Spacing="11">
-          <FontIcon Glyph="&#xE8F1;" FontSize="35" Opacity="0.55"/>
-          <TextBlock Text="ExamLex 词典" FontSize="21" FontWeight="SemiBold"
+                    VerticalAlignment="Center" Spacing="7">
+          <FontIcon Glyph="&#xE8F1;" FontSize="28" Opacity="0.55"/>
+          <TextBlock Text="ExamLex 词典" FontSize="18" FontWeight="SemiBold"
                      HorizontalAlignment="Center"/>
           <TextBlock x:Name="EmptyDescription"
                      Text="还没有安装词库。可在设置 → 关于中检查 ExamLex-Lexicon 更新。"
                      TextWrapping="Wrap" TextAlignment="Center" Opacity="0.72"
-                     MaxWidth="420"/>
+                     MaxWidth="390"/>
         </StackPanel>
         <ScrollViewer x:Name="ResultsScroll" VerticalScrollBarVisibility="Auto"
                       Visibility="Collapsed">
           <StackPanel x:Name="ResultsPanel" Spacing="10" Padding="0,8,0,14"/>
         </ScrollViewer>
       </Grid>
-      <Frame x:Name="ContentFrame" Grid.Row="1" Grid.RowSpan="2" Visibility="Collapsed"
+      <Frame x:Name="ContentFrame" Grid.Row="1" Grid.RowSpan="3" Visibility="Collapsed"
             />
 
       <Grid x:Name="Footer" Grid.Row="3" Background="#1B2625">
@@ -60,24 +60,24 @@
         </Grid.ColumnDefinitions>
         <Border Height="1" VerticalAlignment="Top" Background="#34403E" Grid.ColumnSpan="5"/>
         <Button x:Name="SettingsButton" Grid.Column="0" Click="OnSettingsClicked"
-                Width="50" Height="46" Margin="14,8,0,8" Background="Transparent"
+                Width="44" Height="42" Margin="14,7,0,7" Background="Transparent"
                 BorderThickness="0" ToolTipService.ToolTip="设置"
                 AutomationProperties.Name="设置">
           <FontIcon Glyph="&#xE713;" FontSize="23"/>
         </Button>
         <Button x:Name="CalculatorButton" Grid.Column="2" Click="OnCalculatorClicked"
-                Margin="3,8,3,8" Width="50" Height="46" Background="Transparent"
+                Margin="3,7,3,7" Width="44" Height="42" Background="Transparent"
                 BorderThickness="0" ToolTipService.ToolTip="托福 / 雅思算分器"
                 AutomationProperties.Name="英语考试算分器">
           <FontIcon Glyph="&#xE8EF;" FontSize="22"/>
         </Button>
         <Button Grid.Column="3" Click="OnGlossaryClicked"
-                Margin="3,8,3,8" Width="50" Height="46" Background="Transparent"
+                Margin="3,7,3,7" Width="44" Height="42" Background="Transparent"
                 BorderThickness="0" ToolTipService.ToolTip="生词本">
           <FontIcon Glyph="&#xE8F1;" FontSize="22"/>
         </Button>
         <ToggleButton x:Name="PinToggle" Grid.Column="4" Click="OnPinClicked"
-                      Margin="3,8,12,8" Width="50" Height="46"
+                      Margin="3,7,12,7" Width="44" Height="42"
                       Background="Transparent" BorderThickness="0"
                       ToolTipService.ToolTip="窗口置顶">
           <FontIcon Glyph="&#xE718;" FontSize="22"/>
