@@ -1,7 +1,7 @@
 namespace ExamLex.Models;
 public sealed class GlossaryMyModel
 {
-    public string GlossaryTitle { get; init; } = "";
-    public string GlossaryDescription { get; init; } = "";
-    public string GlossaryIcon { get; init; } = "\uE82D";
+    public string GlossaryTitle { get; set; } = "";
+    public string GlossaryDescription { get; set; } = "";
+    public string GlossaryIcon { get; set; } = "\uE82D";
 }
