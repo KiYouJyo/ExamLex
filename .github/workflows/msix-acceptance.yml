@@ -116,7 +116,7 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $cert = Join-Path $env:EXAMLEX_OUTPUT 'ExamLex_0.1.0_public.cer'
           $package = Join-Path $env:EXAMLEX_OUTPUT 'ExamLex_0.1.0.0_x64.msix'
-          Import-Certificate -FilePath $cert -CertStoreLocation Cert:\CurrentUser\TrustedPeople | Out-Null
+          Import-Certificate -FilePath $cert -CertStoreLocation Cert:\LocalMachine\TrustedPeople | Out-Null
           try {
             Add-AppxPackage -Path $package -ErrorAction Stop
             $installed = Get-AppxPackage -Name 'KiYouJyo.ExamLex'
@@ -125,7 +125,7 @@ jobs:
             Write-Host 'MSIX install/registration smoke test passed.'
           }
           finally {
-            Get-ChildItem Cert:\CurrentUser\TrustedPeople |
+            Get-ChildItem Cert:\LocalMachine\TrustedPeople |
               Where-Object Thumbprint -eq $env:EXAMLEX_THUMBPRINT |
               ForEach-Object { Remove-Item -LiteralPath $_.PSPath -Force }
           }
