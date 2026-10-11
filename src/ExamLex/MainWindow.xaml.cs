@@ -69,6 +69,14 @@ public sealed partial class MainWindow : Window
         uint dpi = GetDpiForWindow(hwnd);
         double scale = dpi >= 96 ? dpi / 96d : 1d;
 
+        if (AppWindow.Presenter is OverlappedPresenter minPresenter)
+        {
+            // Flint MainWindow.xaml sets MinWidth=580 and MinHeight=386.
+            // Native AppWindow min dimensions are physical pixels.
+            minPresenter.PreferredMinimumWidth = (int)Math.Round(580*scale);
+            minPresenter.PreferredMinimumHeight = (int)Math.Round(386*scale);
+        }
+
         var display = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Nearest);
         var work = display.WorkArea;
         int width = Math.Min((int)Math.Round(_preferences.MainWindowWidth * scale), Math.Max(440, work.Width - 32));
