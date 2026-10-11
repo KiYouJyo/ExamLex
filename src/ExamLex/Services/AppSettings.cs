@@ -2,6 +2,8 @@ using System.Text.Json;
 namespace ExamLex.Services;
 public sealed class AppSettings
 {
+    public double MainWindowWidth { get; set; } = 580;
+    public double MainWindowHeight { get; set; } = 386;
     public int Appearance { get; set; } = 1; // System, Dark, Light
     public int Backdrop { get; set; } = 0; // Solid, Mica, Acrylic
     public bool ShowEnglishDefinition { get; set; } = true;

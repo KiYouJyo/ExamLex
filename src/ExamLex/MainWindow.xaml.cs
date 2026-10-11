@@ -36,10 +36,26 @@ public sealed partial class MainWindow : Window
         _savedWords=ReadSavedWords();
         ApplyPreferences();
         Activated+=OnWindowActivated;
+        Closed+=OnWindowClosed;
     }
 
     [DllImport("user32.dll")]
     private static extern uint GetDpiForWindow(IntPtr hwnd);
+
+    private void OnWindowClosed(object sender, WindowEventArgs e)
+    {
+        // Match Flint's persisted logical window dimensions rather than saving raw physical pixels.
+        if (!_sized) return;
+        try
+        {
+            uint dpi = GetDpiForWindow(WinRT.Interop.WindowNative.GetWindowHandle(this));
+            double scale = dpi >= 96 ? dpi/96d : 1d;
+            _preferences.MainWindowWidth = Math.Max(580, AppWindow.Size.Width/scale);
+            _preferences.MainWindowHeight = Math.Max(386, AppWindow.Size.Height/scale);
+            _preferences.Save();
+        }
+        catch { /* Keep user preferences even when closing during device changes. */ }
+    }
 
     private void OnWindowActivated(object sender, WindowActivatedEventArgs e)
     {
@@ -55,8 +71,8 @@ public sealed partial class MainWindow : Window
 
         var display = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Nearest);
         var work = display.WorkArea;
-        int width = Math.Min((int)Math.Round(660 * scale), Math.Max(440, work.Width - 32));
-        int height = Math.Min((int)Math.Round(470 * scale), Math.Max(340, work.Height - 32));
+        int width = Math.Min((int)Math.Round(_preferences.MainWindowWidth * scale), Math.Max(440, work.Width - 32));
+        int height = Math.Min((int)Math.Round(_preferences.MainWindowHeight * scale), Math.Max(340, work.Height - 32));
         int x = work.X + Math.Max(0, (work.Width - width) / 2);
         int y = work.Y + Math.Max(0, (work.Height - height) / 2);
         AppWindow.MoveAndResize(new Windows.Graphics.RectInt32(x, y, width, height));
@@ -64,33 +80,24 @@ public sealed partial class MainWindow : Window
 
     private void ApplyPreferences()
     {
-        Root.RequestedTheme=_preferences.Appearance switch{
+        Root.RequestedTheme=_preferences.Appearance switch
+        {
             1=>ElementTheme.Dark,2=>ElementTheme.Light,_=>ElementTheme.Default
         };
-        bool light = _preferences.Appearance==2 ||
-            (_preferences.Appearance==0 && (Application.Current.RequestedTheme==ApplicationTheme.Light));
-        Root.Background=new SolidColorBrush(light?
-            Color.FromArgb(255,247,249,249):Color.FromArgb(255,30,30,30));
-        SearchHost.Background=new SolidColorBrush(light?
-            Color.FromArgb(255,238,244,243):Color.FromArgb(255,37,37,37));
-        SearchHost.BorderBrush=new SolidColorBrush(light?
-            Color.FromArgb(255,211,222,219):Color.FromArgb(255,59,59,59));
-        Footer.Background=new SolidColorBrush(light?
-            Color.FromArgb(255,239,245,244):Color.FromArgb(255,31,31,31));
-        SearchHost.CornerRadius=new CornerRadius(_preferences.SearchStyle switch{1=>18,2=>2,_=>6});
-        SystemBackdrop=_preferences.Backdrop switch
+        // Flint's backdrop is Mica or Acrylic; no opaque invented background layers.
+        SystemBackdrop=_preferences.Backdrop==2
+            ? new DesktopAcrylicBackdrop() : new MicaBackdrop();
+        Root.Background=new SolidColorBrush(Colors.Transparent);
+
+        // Exact search TextBox control templates from upstream Flint CustomControlStyle.xaml.
+        string key=_preferences.SearchStyle switch
         {
-            1=>new MicaBackdrop(),
-            2=>new DesktopAcrylicBackdrop(),
-            _=>null
+            1=>"RoundTextBoxStyle",2=>"ClassicTextBoxStyle",_=>"ModernTextBoxStyle"
         };
-        if(_preferences.Backdrop!=0)
-            Root.Background=new SolidColorBrush(Colors.Transparent);
-        if(_speaker is not null) _speaker.Volume=_preferences.TtsVolume/100d;
-        if(ContentFrame.Content is SettingsPage settingsPage)
-        {
-            // Settings page owns preference controls; no additional work required.
-        }
+        SearchBox.Style=(Style)Application.Current.Resources[key];
+        SearchHint.Visibility=string.IsNullOrEmpty(SearchBox.Text)?Visibility.Visible:Visibility.Collapsed;
+        PinIcon.Glyph=PinToggle.IsChecked==true?"\\uE196":"\\uE141";
+        if(_speaker is not null)_speaker.Volume=_preferences.TtsVolume/100d;
     }
 
     private void NavigateTo(Type type,string title)
@@ -142,8 +149,12 @@ public sealed partial class MainWindow : Window
         if(ContentFrame.Content is SettingsPage){ShowHome();return;}
         NavigateTo(typeof(SettingsPage),"设置");
     }
-    private void OnSearchTextChanged(object sender,TextChangedEventArgs e) =>
-        _ = RefreshSearchAsync(SearchBox.Text);
+    private void OnSearchTextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (SearchHint is not null)
+            SearchHint.Visibility=string.IsNullOrEmpty(SearchBox.Text)?Visibility.Visible:Visibility.Collapsed;
+        _=RefreshSearchAsync(SearchBox.Text);
+    }
     private async Task RefreshSearchAsync(string search)
     {
         _searchCancellation?.Cancel();
@@ -469,6 +480,7 @@ public sealed partial class MainWindow : Window
     {
         if(AppWindow.Presenter is OverlappedPresenter presenter)
             presenter.IsAlwaysOnTop=PinToggle.IsChecked==true;
+        PinIcon.Glyph=PinToggle.IsChecked==true?"\\uE196":"\\uE141";
     }
     private HashSet<string> ReadSavedWords()
     {

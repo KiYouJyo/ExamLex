@@ -9,3 +9,5 @@ The settings page in `src/ExamLex/Views/SettingsPage.xaml` adapts the layout and
 Those modifications of the Flint settings layout are provided under the Mozilla Public License Version 2.0; a copy is included at `LICENSES/MPL-2.0.txt`. The full source for the modified settings page is available in this repository. ExamLex's separately authored components remain under the root MIT license. No Flint logo artwork or dictionary databases are included.
 
 CommunityToolkit for WinUI is used for its `SettingsCard` and `SettingsExpander` controls, as Flint3 does.
+
+Upstream source XAML and styles are preserved unmodified under `upstream-flint/Flint3/` to make visual parity auditing possible. Their adapted working copies in `src/ExamLex/Views/SettingsPage.xaml` and `src/ExamLex/ThemeResource/` retain MPL-2.0 license, see `LICENSES/MPL-2.0.txt`.

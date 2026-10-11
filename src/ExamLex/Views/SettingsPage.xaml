@@ -1,158 +1,364 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  Settings layout ported from Flint3/Views/SettingsPage.xaml by sh0ckj0ckey (MPL-2.0).
-  ExamLex modifications: control bindings, original ExamLex banner, updater actions,
-  removal of upstream feedback links and upstream image assets.
-  See THIRD_PARTY_NOTICES.md and LICENSES/MPL-2.0.txt.
--->
-<Page x:Class="ExamLex.Views.SettingsPage"
+<Page
+    x:Class="ExamLex.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls" 
+    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
     xmlns:labs="using:CommunityToolkit.WinUI.Controls"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-  <Grid>
-    <Grid.RowDefinitions><RowDefinition Height="*"/><RowDefinition Height="52"/></Grid.RowDefinitions>
-    <ScrollViewer x:Name="SettingsScroll" Grid.Row="0" VerticalScrollBarVisibility="Auto">
-      <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Padding="0,6,0,12">
-        <!-- Flint3's 96-DIP masthead and 16-DIP row margins -->
-        <Border x:Name="LogoGrid" Margin="16,0,16,0" Height="96" CornerRadius="4">
-          <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#243A3A" Offset="0"/><GradientStop Color="#1D2929" Offset="1"/>
-          </LinearGradientBrush></Border.Background>
-          <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal" Spacing="12">
-            <Border Width="42" Height="42" CornerRadius="10" Background="#4EB59A">
-              <TextBlock Text="EL" HorizontalAlignment="Center" VerticalAlignment="Center"
-                         FontSize="19" FontWeight="Bold" Foreground="White"/>
-            </Border>
-            <StackPanel VerticalAlignment="Center" Spacing="1">
-              <TextBlock Text="ExamLex" FontFamily="Times New Roman" FontWeight="SemiBold" FontSize="24" Foreground="White"/>
-              <TextBlock Text="English Exam Lexicon" FontSize="13" Foreground="#C6DBD5"/>
-            </StackPanel>
-          </StackPanel>
-        </Border>
+    Background="Transparent" NavigationCacheMode="Disabled">
+    
 
-        <TextBlock Text="外观与功能" Margin="20,12,0,8" FontWeight="Bold" FontSize="14"/>
-        <labs:SettingsCard  Margin="16,2,16,0" HorizontalAlignment="Stretch" >
-  <labs:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE790;"/></labs:SettingsCard.HeaderIcon>
-  <labs:SettingsCard.Header><TextBlock Text="主题"/></labs:SettingsCard.Header>
-  <labs:SettingsCard.Description><TextBlock Text="选择 ExamLex 的外观" TextWrapping="Wrap"/></labs:SettingsCard.Description>
-  <ComboBox x:Name="ThemeBox" MinWidth="128" SelectionChanged="OnPreferenceChanged"><ComboBoxItem Content="跟随系统"/><ComboBoxItem Content="深色"/><ComboBoxItem Content="浅色"/></ComboBox>
-</labs:SettingsCard>
-        <labs:SettingsCard  Margin="16,2,16,0" HorizontalAlignment="Stretch" >
-  <labs:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE727;"/></labs:SettingsCard.HeaderIcon>
-  <labs:SettingsCard.Header><TextBlock Text="背景"/></labs:SettingsCard.Header>
-  <labs:SettingsCard.Description><TextBlock Text="选择 ExamLex 的背景材质" TextWrapping="Wrap"/></labs:SettingsCard.Description>
-  <ComboBox x:Name="BackdropBox" MinWidth="128" SelectionChanged="OnPreferenceChanged"><ComboBoxItem Content="纯色"/><ComboBoxItem Content="云母"/><ComboBoxItem Content="亚克力"/></ComboBox>
-</labs:SettingsCard>
-        <labs:SettingsCard  Margin="16,2,16,0" HorizontalAlignment="Stretch" >
-  <labs:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE8F1;"/></labs:SettingsCard.HeaderIcon>
-  <labs:SettingsCard.Header><TextBlock Text="英文释义"/></labs:SettingsCard.Header>
-  <labs:SettingsCard.Description><TextBlock Text="选择是否显示英英释义" TextWrapping="Wrap"/></labs:SettingsCard.Description>
-  <ToggleSwitch x:Name="DefinitionSwitch" Toggled="OnPreferenceChanged"/>
-</labs:SettingsCard>
-        <labs:SettingsExpander  Margin="16,2,16,0" HorizontalAlignment="Stretch">
-  <labs:SettingsExpander.HeaderIcon><FontIcon Glyph="&#xE82D;"/></labs:SettingsExpander.HeaderIcon>
-  <labs:SettingsExpander.Header><TextBlock Text="生词本"/></labs:SettingsExpander.Header>
-  <labs:SettingsExpander.Description><TextBlock Text="选择是否启用生词本功能" TextWrapping="Wrap"/></labs:SettingsExpander.Description>
-  <ToggleSwitch x:Name="GlossarySwitch" Toggled="OnPreferenceChanged"/>
-  <labs:SettingsExpander.Items><labs:SettingsCard  Margin="16,2,16,0" HorizontalAlignment="Stretch" >
-  <labs:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE8B7;"/></labs:SettingsCard.HeaderIcon>
-  <labs:SettingsCard.Header><TextBlock Text="数据文件"/></labs:SettingsCard.Header>
-  <labs:SettingsCard.Description><TextBlock Text="生词本保存在用户本地 ExamLex 文件夹" TextWrapping="Wrap"/></labs:SettingsCard.Description>
-  <Button Content="前往查看 ↗" Click="OnGlossaryFolderClicked" Height="32"/>
-</labs:SettingsCard></labs:SettingsExpander.Items>
-</labs:SettingsExpander>
-        <labs:SettingsExpander  Margin="16,2,16,0" HorizontalAlignment="Stretch">
-  <labs:SettingsExpander.HeaderIcon><FontIcon Glyph="&#xE767;"/></labs:SettingsExpander.HeaderIcon>
-  <labs:SettingsExpander.Header><TextBlock Text="朗读单词"/></labs:SettingsExpander.Header>
-  <labs:SettingsExpander.Description><TextBlock Text="选择是否启用朗读单词功能" TextWrapping="Wrap"/></labs:SettingsExpander.Description>
-  <ToggleSwitch x:Name="TtsSwitch" Toggled="OnPreferenceChanged"/>
-  <labs:SettingsExpander.Items><labs:SettingsCard  Margin="16,2,16,0" HorizontalAlignment="Stretch" >
-  <labs:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE767;"/></labs:SettingsCard.HeaderIcon>
-  <labs:SettingsCard.Header><TextBlock Text="朗读音量"/></labs:SettingsCard.Header>
-  <labs:SettingsCard.Description><TextBlock Text="使用 Windows 系统语音" TextWrapping="Wrap"/></labs:SettingsCard.Description>
-  <Slider x:Name="VolumeSlider" Width="170" Minimum="0" Maximum="100" StepFrequency="5" ValueChanged="OnVolumeChanged"/>
-</labs:SettingsCard></labs:SettingsExpander.Items>
-</labs:SettingsExpander>
-        <TextBlock Text="行为" Margin="20,12,0,8" FontWeight="Bold" FontSize="14"/>
-        <labs:SettingsCard  Margin="16,2,16,0" HorizontalAlignment="Stretch" >
-  <labs:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE7F4;"/></labs:SettingsCard.HeaderIcon>
-  <labs:SettingsCard.Header><TextBlock Text="开机自启动"/></labs:SettingsCard.Header>
-  <labs:SettingsCard.Description><TextBlock Text="登录 Windows 时启动 ExamLex（待接入）" TextWrapping="Wrap"/></labs:SettingsCard.Description>
-  <ToggleSwitch IsOn="False" IsEnabled="False"/>
-</labs:SettingsCard>
-        <labs:SettingsCard  Margin="16,2,16,0" HorizontalAlignment="Stretch" >
-  <labs:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE765;"/></labs:SettingsCard.HeaderIcon>
-  <labs:SettingsCard.Header><TextBlock Text="快捷键"/></labs:SettingsCard.Header>
-  <labs:SettingsCard.Description><TextBlock Text="自定义唤醒窗口的快捷键（待接入）" TextWrapping="Wrap"/></labs:SettingsCard.Description>
-  <Button Content="设置快捷键" IsEnabled="False" Height="32"/>
-</labs:SettingsCard>
-        <labs:SettingsCard  Margin="16,2,16,0" HorizontalAlignment="Stretch" >
-  <labs:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE8A7;"/></labs:SettingsCard.HeaderIcon>
-  <labs:SettingsCard.Header><TextBlock Text="快捷窗口"/></labs:SettingsCard.Header>
-  <labs:SettingsCard.Description><TextBlock Text="通过快捷键唤出完整或简洁搜索窗口（待接入）" TextWrapping="Wrap"/></labs:SettingsCard.Description>
-  <ComboBox MinWidth="128" IsEnabled="False" SelectedIndex="0"><ComboBoxItem Content="完整"/><ComboBoxItem Content="简洁"/></ComboBox>
-</labs:SettingsCard>
-        <labs:SettingsCard  Margin="16,2,16,0" HorizontalAlignment="Stretch" >
-  <labs:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE74D;"/></labs:SettingsCard.HeaderIcon>
-  <labs:SettingsCard.Header><TextBlock Text="自动清除"/></labs:SettingsCard.Header>
-  <labs:SettingsCard.Description><TextBlock Text="唤醒主页后清除上次输入" TextWrapping="Wrap"/></labs:SettingsCard.Description>
-  <ToggleSwitch x:Name="ClearSwitch" Toggled="OnPreferenceChanged"/>
-</labs:SettingsCard>
-        <labs:SettingsCard  Margin="16,2,16,0" HorizontalAlignment="Stretch" >
-  <labs:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE8BB;"/></labs:SettingsCard.HeaderIcon>
-  <labs:SettingsCard.Header><TextBlock Text="关闭按钮"/></labs:SettingsCard.Header>
-  <labs:SettingsCard.Description><TextBlock Text="隐藏至系统托盘（待接入）；当前关闭时退出软件" TextWrapping="Wrap"/></labs:SettingsCard.Description>
-  <ComboBox MinWidth="128" SelectedIndex="1" IsEnabled="False"><ComboBoxItem Content="隐藏至托盘"/><ComboBoxItem Content="退出"/></ComboBox>
-</labs:SettingsCard>
-        <TextBlock Text="搜索" Margin="20,12,0,8" FontWeight="Bold" FontSize="14"/>
-        <labs:SettingsExpander  Margin="16,2,16,0" HorizontalAlignment="Stretch">
-  <labs:SettingsExpander.HeaderIcon><FontIcon Glyph="&#xE8AC;"/></labs:SettingsExpander.HeaderIcon>
-  <labs:SettingsExpander.Header><TextBlock Text="搜索框样式"/></labs:SettingsExpander.Header>
-  <labs:SettingsExpander.Description><TextBlock Text="选择主页搜索框的外观" TextWrapping="Wrap"/></labs:SettingsExpander.Description>
-  
-  <labs:SettingsExpander.Items><labs:SettingsCard  Margin="16,2,16,0" HorizontalAlignment="Stretch" >
-  <labs:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE8AC;"/></labs:SettingsCard.HeaderIcon>
-  <labs:SettingsCard.Header><TextBlock Text="样式"/></labs:SettingsCard.Header>
-  <labs:SettingsCard.Description><TextBlock Text="经典 / 圆角 / 简洁" TextWrapping="Wrap"/></labs:SettingsCard.Description>
-  <ComboBox x:Name="SearchStyleBox" MinWidth="156" SelectionChanged="OnPreferenceChanged"><ComboBoxItem Content="经典"/><ComboBoxItem Content="圆角"/><ComboBoxItem Content="简洁"/></ComboBox>
-</labs:SettingsCard></labs:SettingsExpander.Items>
-</labs:SettingsExpander>
-        <TextBlock Text="关于" Margin="20,12,0,8" FontWeight="Bold" FontSize="14"/>
-        <labs:SettingsExpander x:Name="AboutSettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch">
-  <labs:SettingsExpander.HeaderIcon><FontIcon Glyph="&#xE946;"/></labs:SettingsExpander.HeaderIcon>
-  <labs:SettingsExpander.Header><TextBlock x:Name="AppVersionText" Text="ExamLex"/></labs:SettingsExpander.Header>
-  <labs:SettingsExpander.Description><TextBlock Text="ExamLex 是一款开源的离线英语考试词典" TextWrapping="Wrap"/></labs:SettingsExpander.Description>
-  <Button Content="检查更新" Height="34" Click="OnAppUpdateClicked"/>
-          
-  <labs:SettingsExpander.Items><labs:SettingsCard  Margin="16,2,16,0" HorizontalAlignment="Stretch" >
-  <labs:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE8A7;"/></labs:SettingsCard.HeaderIcon>
-  <labs:SettingsCard.Header><TextBlock Text="源代码"/></labs:SettingsCard.Header>
-  <labs:SettingsCard.Description><TextBlock Text="前往 GitHub 查看 ExamLex 源代码" TextWrapping="Wrap"/></labs:SettingsCard.Description>
-  <Button Content="GitHub 存储库 ↗" Click="OnSourceClicked" Height="34"/>
-</labs:SettingsCard><labs:SettingsCard  Margin="16,2,16,0" HorizontalAlignment="Stretch" >
-  <labs:SettingsCard.HeaderIcon><FontIcon Glyph="&#xE8F1;"/></labs:SettingsCard.HeaderIcon>
-  <labs:SettingsCard.Header><TextBlock Text="词典数据库"/></labs:SettingsCard.Header>
-  <labs:SettingsCard.Description><TextBlock Text="离线词典数据由 ExamLex-Lexicon 单独维护" TextWrapping="Wrap"/></labs:SettingsCard.Description>
-  <StackPanel Spacing="5" HorizontalAlignment="Right" MaxWidth="280">
-  <TextBlock x:Name="DatabaseVersionText" Text="尚未安装数据库" Opacity="0.7" FontSize="12" TextAlignment="Right"/>
-  <Button x:Name="DatabaseUpdateButton" Content="检查更新" HorizontalAlignment="Right" Click="OnDatabaseUpdateClicked" Height="34"/>
-  <TextBlock x:Name="DatabaseUpdateStatus" Text="单独检查词库更新" FontSize="12" TextWrapping="Wrap" MaxWidth="260" Opacity="0.7"/>
-</StackPanel>
-</labs:SettingsCard></labs:SettingsExpander.Items>
-</labs:SettingsExpander>
-        <TextBlock x:Name="AppUpdateStatus" Text="应用更新与单词数据库更新彼此独立"
-                   FontSize="12" TextWrapping="Wrap" Opacity="0.7" Margin="20,7,16,4"/>
-        <TextBlock Text="© 2026 ExamLex contributors · Flint settings UI © sh0ckj0ckey (MPL-2.0)"
-                   Margin="20,8,16,10" FontSize="11" Opacity="0.55" TextWrapping="Wrap"/>
-      </StackPanel>
-    </ScrollViewer>
-    <Grid Grid.Row="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
-      <Border Height="1" VerticalAlignment="Top" Background="{ThemeResource CardStrokeColorDefaultBrush}"/>
-      <Button HorizontalAlignment="Left" Click="OnBackClicked" Background="Transparent"
-              BorderBrush="Transparent" Margin="8,4,0,4" Height="44" ToolTipService.ToolTip="返回词典">
-        <FontIcon Glyph="&#xE72B;" FontSize="20" Opacity="0.8"/>
-      </Button>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="38"/>
+            <RowDefinition Height="4"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid x:Name="SettingsPageHeaderTitleGrid" Grid.Row="0" Opacity="0" Background="Transparent">
+            <TextBlock Text="Settings" FontFamily="Times New Roman" Margin="20,0,0,4" FontWeight="Bold" FontSize="20" VerticalAlignment="Bottom" Opacity="0.9"/>
+        </Grid>
+        <Border x:Name="SettingsPageHeaderSeperatorLineBorder" Grid.Row="1" Height="1" Opacity="0" Background="{ThemeResource ControlElevationBorderBrush}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
+
+        <ScrollViewer Grid.Row="2" x:Name="SettingsScroll" ViewChanged="OnSettingsScrollChanged" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+
+                <!-- Flint original logo banner geometry (96 DIP); swap brand assets only -->
+<Grid x:Name="LogoGrid" Margin="16,0,16,0" BorderThickness="1" CornerRadius="4" Height="96" HorizontalAlignment="Stretch" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+<StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" VerticalAlignment="Center">
+<Image Height="42" Width="42" Source="ms-appx:///Assets/Square71x71Logo.png"/>
+<StackPanel Orientation="Vertical" Spacing="-4">
+<TextBlock><Run Text="ExamLex" FontFamily="Times New Roman" FontWeight="SemiBold" FontSize="24"/></TextBlock>
+<TextBlock><Run Text="/ɪɡˈzæm.lɛks/" FontSize="15"/><Run Text=" noun " FontStyle="Italic" FontSize="15"/><Run Text="英语考试词典" FontSize="14"/></TextBlock>
+</StackPanel></StackPanel></Grid>
+<TextBlock x:Name="AppearanceSettingsHeaderTextBlock" Text="外观与功能" Margin="20,12,0,8" FontWeight="Bold" FontSize="14"/>
+
+                <!--主题设置-->
+                <labs:SettingsCard x:Name="ThemeSettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch">
+                    <labs:SettingsCard.HeaderIcon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE790;"/>
+                    </labs:SettingsCard.HeaderIcon>
+                    <labs:SettingsCard.Header>
+                        <TextBlock Text="主题"/>
+                    </labs:SettingsCard.Header>
+                    <labs:SettingsCard.Description>
+                        <TextBlock Text="选择ExamLex的外观"/>
+                    </labs:SettingsCard.Description>
+                    <ComboBox x:Name="ThemeBox" MinWidth="128" SelectionChanged="OnPreferenceChanged">
+                        <ComboBoxItem Content="跟随系统"/>
+                        <ComboBoxItem Content="深色"/>
+                        <ComboBoxItem Content="浅色"/>
+                    </ComboBox>
+                </labs:SettingsCard>
+
+                <!--背景材质设置-->
+                <labs:SettingsCard x:Name="BackdropSettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch">
+                    <labs:SettingsCard.HeaderIcon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE727;"/>
+                    </labs:SettingsCard.HeaderIcon>
+                    <labs:SettingsCard.Header>
+                        <TextBlock Text="背景"/>
+                    </labs:SettingsCard.Header>
+                    <labs:SettingsCard.Description>
+                        <TextBlock Text="选择ExamLex的背景材质"/>
+                    </labs:SettingsCard.Description>
+                    <ComboBox x:Name="BackdropBox" MinWidth="128" SelectionChanged="OnPreferenceChanged">
+                        <ComboBoxItem Content="云母"/>
+                        <ComboBoxItem Content="亚克力"/>
+                    </ComboBox>
+                </labs:SettingsCard>
+
+                <!--英英释义-->
+                <labs:SettingsCard x:Name="EnglishDefSettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch">
+                    <labs:SettingsCard.HeaderIcon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8D2;"/>
+                    </labs:SettingsCard.HeaderIcon>
+                    <labs:SettingsCard.Header>
+                        <TextBlock Text="英文释义"/>
+                    </labs:SettingsCard.Header>
+                    <labs:SettingsCard.Description>
+                        <TextBlock Text="选择是否显示英英释义"/>
+                    </labs:SettingsCard.Description>
+                    <ToggleSwitch MinWidth="0" Background="Transparent" x:Name="DefinitionSwitch" Toggled="OnPreferenceChanged"/>
+                </labs:SettingsCard>
+
+                <!--生词本-->
+                <labs:SettingsExpander x:Name="GlossarySettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch" IsExpanded="False">
+                    <labs:SettingsExpander.HeaderIcon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE82D;"/>
+                    </labs:SettingsExpander.HeaderIcon>
+                    <labs:SettingsExpander.Header>
+                        <TextBlock Text="生词本"/>
+                    </labs:SettingsExpander.Header>
+                    <labs:SettingsExpander.Description><TextBlock Text="选择是否启用生词本功能"/></labs:SettingsExpander.Description>
+                    <ToggleSwitch x:Name="EnableGlossaryToggleSwitch" MinWidth="0" Background="Transparent" Toggled="OnPreferenceChanged"/>
+                    <labs:SettingsExpander.Items>
+                        <labs:SettingsCard HorizontalAlignment="Stretch" >
+                            <labs:SettingsCard.Description>
+                                <TextBlock Text="生词本数据文件存放在 ExamLex 本地文件夹中"/>
+                            </labs:SettingsCard.Description>
+                            <Button Height="32" MinWidth="72" Click="OnGlossaryFolderClicked">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE838;" FontSize="12"/>
+                                    <TextBlock Text="前往查看"/>
+                                </StackPanel>
+                            </Button>
+                        </labs:SettingsCard>
+                    </labs:SettingsExpander.Items>
+                </labs:SettingsExpander>
+
+                <!--朗读单词-->
+                <labs:SettingsExpander x:Name="TTSSettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch" IsExpanded="False" >
+                    <labs:SettingsExpander.HeaderIcon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEFA9;"/>
+                    </labs:SettingsExpander.HeaderIcon>
+                    <labs:SettingsExpander.Header>
+                        <TextBlock Text="朗读单词"/>
+                    </labs:SettingsExpander.Header>
+                    <labs:SettingsExpander.Description><TextBlock Text="选择是否启用朗读单词功能"/></labs:SettingsExpander.Description>
+                    <ToggleSwitch x:Name="EnableTTSToggleSwitch" MinWidth="0" Background="Transparent" Toggled="OnPreferenceChanged"/>
+                    <labs:SettingsExpander.Items>
+                        <labs:SettingsCard HorizontalAlignment="Stretch" >
+                            <labs:SettingsCard.Description>
+                                <TextBlock Text="设置朗读单词的声音"/>
+                            </labs:SettingsCard.Description>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <HyperlinkButton FontFamily="{ThemeResource SymbolThemeFontFamily}" Padding="8" Content="&#xE767;" Click="OnHearVoiceClicked"/>
+                                <ComboBox x:Name="TTSVoicesComboBox" PlaceholderText="默认声音" SelectionChanged="OnVoiceChanged"/>
+                            </StackPanel>
+                        </labs:SettingsCard>
+                        <labs:SettingsCard HorizontalAlignment="Stretch" >
+                            <labs:SettingsCard.Description>
+                                <TextBlock Text="设置朗读单词的音量"/>
+                            </labs:SettingsCard.Description>
+                            <Slider x:Name="VolumeSlider" Value="8" ValueChanged="OnVolumeChanged" Minimum="1" Maximum="10" StepFrequency="1" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+                        </labs:SettingsCard>
+                    </labs:SettingsExpander.Items>
+                </labs:SettingsExpander>
+
+                <TextBlock x:Name="BehaviorSettingsHeaderTextBlock" Text="行为" Margin="20,12,0,8" FontWeight="Bold" FontSize="14"/>
+
+                <!--开机自启设置-->
+                <labs:SettingsCard x:Name="StartupSettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch"
+                                   >
+                    <labs:SettingsCard.HeaderIcon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE7B5;"/>
+                    </labs:SettingsCard.HeaderIcon>
+                    <labs:SettingsCard.Header>
+                        <TextBlock Text="开机自启动"/>
+                    </labs:SettingsCard.Header>
+                    <labs:SettingsCard.Description>
+                        <TextBlock x:Name="StartupDescTextBlock" Text="登录到 Windows 时自动启动ExamLex"/>
+                    </labs:SettingsCard.Description>
+                    <ToggleSwitch x:Name="StartupSettingToggleSwitch" MinWidth="0" Background="Transparent" IsEnabled="False"/>
+                </labs:SettingsCard>
+
+                <!--快捷键设置-->
+                <labs:SettingsCard x:Name="ShortcutSettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch">
+                    <labs:SettingsCard.HeaderIcon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEDA7;"/>
+                    </labs:SettingsCard.HeaderIcon>
+                    <labs:SettingsCard.Header>
+                        <TextBlock Text="快捷键"/>
+                    </labs:SettingsCard.Header>
+                    <labs:SettingsCard.Description>
+                        <TextBlock Text="自定义唤醒窗口的快捷键"/>
+                    </labs:SettingsCard.Description>
+                    <ToggleSwitch MinWidth="0" IsEnabled="False"/>
+                </labs:SettingsCard>
+
+                <!--快捷键窗口模式-->
+                <labs:SettingsCard x:Name="WindowModeSettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch">
+                    <labs:SettingsCard.HeaderIcon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF8A5;"/>
+                    </labs:SettingsCard.HeaderIcon>
+                    <labs:SettingsCard.Header>
+                        <TextBlock Text="快捷窗口"/>
+                    </labs:SettingsCard.Header>
+                    <labs:SettingsCard.Description><TextBlock Text="按下快捷键唤出窗口（尚未移植）"/></labs:SettingsCard.Description>
+                    <ComboBox x:Name="WindowModeComboBox" MinWidth="128" SelectedIndex="0" IsEnabled="False">
+                        <ComboBoxItem Content="完整"/>
+                        <ComboBoxItem Content="简洁"/>
+                    </ComboBox>
+                </labs:SettingsCard>
+
+                <!--唤醒自动清除设置-->
+                <labs:SettingsCard x:Name="AutoClearSettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch">
+                    <labs:SettingsCard.HeaderIcon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE13E;"/>
+                    </labs:SettingsCard.HeaderIcon>
+                    <labs:SettingsCard.Header>
+                        <TextBlock Text="自动清除"/>
+                    </labs:SettingsCard.Header>
+                    <labs:SettingsCard.Description>
+                        <TextBlock Text="唤醒后清除上一次输入并居中窗口"/>
+                    </labs:SettingsCard.Description>
+                    <ToggleSwitch MinWidth="0" Background="Transparent" x:Name="ClearSwitch" Toggled="OnPreferenceChanged"/>
+                </labs:SettingsCard>
+
+                <!--关闭按钮设置-->
+                <labs:SettingsCard x:Name="CloseButtonSettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch">
+                    <labs:SettingsCard.HeaderIcon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xEA39;"/>
+                    </labs:SettingsCard.HeaderIcon>
+                    <labs:SettingsCard.Header>
+                        <TextBlock Text="关闭按钮"/>
+                    </labs:SettingsCard.Header>
+                    <labs:SettingsCard.Description><TextBlock Text="点击关闭后 ExamLex 将完全退出"/></labs:SettingsCard.Description>
+                    <ComboBox x:Name="CloseModeComboBox" MinWidth="128" SelectedIndex="1" IsEnabled="False">
+                        <ComboBoxItem Content="隐藏至托盘"/>
+                        <ComboBoxItem Content="退出"/>
+                    </ComboBox>
+                </labs:SettingsCard>
+
+                <TextBlock x:Name="SearchSettingsHeaderTextBlock" Text="搜索" Margin="20,12,0,8" FontWeight="Bold" FontSize="14"/>
+
+                <!--搜索框样式设置-->
+                <labs:SettingsExpander x:Name="SearchBoxSettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch" IsExpanded="False">
+                    <labs:SettingsExpander.HeaderIcon>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE773;"/>
+                    </labs:SettingsExpander.HeaderIcon>
+                    <labs:SettingsExpander.Header>
+                        <TextBlock Text="搜索框样式"/>
+                    </labs:SettingsExpander.Header>
+                    <labs:SettingsExpander.Description>
+                        <TextBlock Text="选择主页搜索框的外观"/>
+                    </labs:SettingsExpander.Description>
+                    <labs:SettingsExpander.Items>
+                        <labs:SettingsCard HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" ContentAlignment="Vertical">
+                            <Grid HorizontalAlignment="Stretch">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <RadioButton Grid.Column="0" Style="{StaticResource SettingsRadioButtonStyle}" HorizontalAlignment="Center" Padding="0" Background="Transparent" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                             x:Name="ModernStyleRadio" Checked="OnSearchStyleChecked" Tag="新颖">
+                                    <RadioButton.Content>
+                                        <Grid Height="72" Width="108" CornerRadius="8" BorderBrush="Black" BorderThickness="4" Background="{ThemeResource SystemAccentColorDark3}">
+                                            <Border Height="28" Width="64" HorizontalAlignment="Right" VerticalAlignment="Center" CornerRadius="4,0,0,4" BorderThickness="0,0,0,2"
+                                                    BorderBrush="{ThemeResource SystemAccentColorDark1}" Background="#20FFFFFF">
+                                                <TextBlock Text="搜索" Margin="8,-1,0,1" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="12.5" FontWeight="SemiBold" Foreground="#33FFFFFF"/>
+                                            </Border>
+                                        </Grid>
+                                    </RadioButton.Content>
+                                    <ToolTipService.ToolTip>
+                                        <ToolTip>
+                                            <TextBlock>
+                                                <Run Text="modern" FontWeight="Bold"/>
+                                                <Run Text="/ˈmɑː.dɚn/"/>
+                                                <Run Text="adjective" FontStyle="Italic" FontWeight="Medium"/>
+                                                <Run Text="新式的"/>
+                                            </TextBlock>
+                                        </ToolTip>
+                                    </ToolTipService.ToolTip>
+                                </RadioButton>
+                                <RadioButton Grid.Column="1" Style="{StaticResource SettingsRadioButtonStyle}" HorizontalAlignment="Center" Padding="0" Background="Transparent" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                             x:Name="RoundStyleRadio" Checked="OnSearchStyleChecked" Tag="圆角">
+                                    <RadioButton.Content>
+                                        <Grid Height="72" Width="108" CornerRadius="8" BorderBrush="Black" BorderThickness="4" Background="{ThemeResource SystemAccentColorDark3}">
+                                            <Border Height="28" Width="64" HorizontalAlignment="Right" VerticalAlignment="Center" CornerRadius="12,0,0,12" BorderThickness="0,0,0,0"
+                                                    BorderBrush="{ThemeResource SystemAccentColorDark1}" Background="#20FFFFFF">
+                                                <TextBlock Text="搜索" Margin="10,-1,0,1" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="12.5" FontWeight="SemiBold" Foreground="#33FFFFFF"/>
+                                            </Border>
+                                        </Grid>
+                                    </RadioButton.Content>
+                                    <ToolTipService.ToolTip>
+                                        <ToolTip>
+                                            <TextBlock>
+                                                <Run Text="round" FontWeight="Bold"/>
+                                                <Run Text="/raʊnd/"/>
+                                                <Run Text="adjective" FontStyle="Italic" FontWeight="Medium"/>
+                                                <Run Text="圆形的"/>
+                                            </TextBlock>
+                                        </ToolTip>
+                                    </ToolTipService.ToolTip>
+                                </RadioButton>
+                                <RadioButton Grid.Column="2" Style="{StaticResource SettingsRadioButtonStyle}" HorizontalAlignment="Center" Padding="0" Background="Transparent" HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                                             x:Name="ClassicStyleRadio" Checked="OnSearchStyleChecked" Tag="经典">
+                                    <RadioButton.Content>
+                                        <Grid Height="72" Width="108" CornerRadius="8" BorderBrush="Black" BorderThickness="4" Background="{ThemeResource SystemAccentColorDark3}">
+                                            <Border Height="28" Width="64" HorizontalAlignment="Right" VerticalAlignment="Center" CornerRadius="2,0,0,2" BorderThickness="1.5,1.5,0,1.5"
+                                                    BorderBrush="#33FFFFFF" Background="#20FFFFFF">
+                                                <TextBlock Text="搜索" Margin="8,-1,0,1" HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="12.5" FontWeight="SemiBold" Foreground="#33FFFFFF"/>
+                                            </Border>
+                                        </Grid>
+                                    </RadioButton.Content>
+                                    <ToolTipService.ToolTip>
+                                        <ToolTip>
+                                            <TextBlock>
+                                                <Run Text="classic" FontWeight="Bold"/>
+                                                <Run Text="/ˈklæs.ɪk/"/>
+                                                <Run Text="adjective" FontStyle="Italic" FontWeight="Medium"/>
+                                                <Run Text="经典的"/>
+                                            </TextBlock>
+                                        </ToolTip>
+                                    </ToolTipService.ToolTip>
+                                </RadioButton>
+                            </Grid>
+                        </labs:SettingsCard>
+                    </labs:SettingsExpander.Items>
+                </labs:SettingsExpander>
+
+                <TextBlock x:Name="AboutSettingsHeaderTextBlock" Text="关于" Margin="20,12,0,8" FontWeight="Bold" FontSize="14"/>
+
+                <!-- About is the exact Flint card/expander structure, with requested brand substitutions -->
+<labs:SettingsExpander x:Name="AboutSettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch">
+<labs:SettingsExpander.HeaderIcon><FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE946;"/></labs:SettingsExpander.HeaderIcon>
+<labs:SettingsExpander.Header><TextBlock x:Name="AppVersionText" Text="ExamLex 0.1.5"/></labs:SettingsExpander.Header>
+<labs:SettingsExpander.Description><TextBlock Text="ExamLex 是一款开源的离线英语考试词典"/></labs:SettingsExpander.Description>
+<Button Height="34" Click="OnAppUpdateClicked"><StackPanel Orientation="Horizontal" Spacing="4"><FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE895;" FontSize="14"/><TextBlock Text="检查更新" VerticalAlignment="Center" FontSize="13"/></StackPanel></Button>
+<labs:SettingsExpander.Items>
+<labs:SettingsCard HorizontalAlignment="Stretch">
+<labs:SettingsCard.Description><TextBlock Text="前往 GitHub 查看源代码"/></labs:SettingsCard.Description>
+<Button Height="34" Background="Transparent" Click="OnSourceClicked">
+<StackPanel Orientation="Horizontal" HorizontalAlignment="Center"><FontIcon Glyph="&#xE8A7;" FontSize="16" Margin="0,0,8,0"/><TextBlock Text="GitHub 存储库" VerticalAlignment="Center" FontSize="13" Margin="0,0,8,0"/><FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A7;" FontSize="14"/></StackPanel></Button></labs:SettingsCard>
+<labs:SettingsCard HorizontalAlignment="Stretch"><labs:SettingsCard.Description>
+<StackPanel Spacing="2"><TextBlock Text="离线词典数据来自 ExamLex-Lexicon"/><TextBlock x:Name="DatabaseVersionText" Text="未安装" FontSize="11" Opacity="0.6"/><TextBlock x:Name="DatabaseUpdateStatus" Text="可单独检查词库更新" FontSize="11" Opacity="0.6" TextWrapping="Wrap"/></StackPanel>
+</labs:SettingsCard.Description><Button x:Name="DatabaseUpdateButton" Height="34" Click="OnDatabaseUpdateClicked">
+<StackPanel Orientation="Horizontal"><TextBlock Text="检查更新" VerticalAlignment="Center" FontSize="13" Margin="0,0,8,0"/><FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A7;" FontSize="14"/></StackPanel>
+</Button></labs:SettingsCard></labs:SettingsExpander.Items></labs:SettingsExpander>
+
+<TextBlock x:Name="AppUpdateStatus" Text="软件和词库更新互相独立" FontSize="11" Opacity="0.5" Margin="20,6,16,0" TextWrapping="Wrap"/><TextBlock x:Name="CopyrightHeaderTextBlock" Text="©2026 ExamLex contributors · Flint UI © sh0ckj0ckey" FontSize="12" FontFamily="Consolas" FontWeight="Light" Opacity="0.5" Margin="20,8,0,8"/>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!--工具栏-->
+        <Grid Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle Grid.ColumnSpan="5" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Fill="{ThemeResource ControlElevationBorderBrush}"/>
+
+            <!--返回按钮-->
+            <Button Grid.Column="0" Margin="8,8,0,8" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Center" Click="OnBackClicked">
+                <ToolTipService.ToolTip>
+                    <ToolTip>
+                        <TextBlock>
+                            <Run Text="back" FontWeight="Bold"/>
+                            <Run Text="/bæk/"/>
+                            <Run Text="adverb" FontStyle="Italic" FontWeight="Medium"/>
+                            <Run Text="返回"/>
+                        </TextBlock>
+                    </ToolTip>
+                </ToolTipService.ToolTip>
+                <muxc:AnimatedIcon Height="22" Width="22" Opacity="0.8">
+                    <muxc:AnimatedIcon.Source>
+                        <animatedvisuals:AnimatedBackVisualSource/>
+                    </muxc:AnimatedIcon.Source>
+                    <muxc:AnimatedIcon.FallbackIconSource>
+                        <muxc:SymbolIconSource Symbol="Back"/>
+                    </muxc:AnimatedIcon.FallbackIconSource>
+                </muxc:AnimatedIcon>
+            </Button>
+        </Grid>
     </Grid>
-  </Grid>
 </Page>

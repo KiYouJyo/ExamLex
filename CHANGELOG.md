@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.5] - 2026-10-11
+- Port Flint 3.4.3's SettingsPage.xaml structure and all original control templates; replace only branded content and wire ExamLex services.
+- Vendor original Flint ThemeDictionary and CustomControlStyle resources (Modern/Round/Classic search, settings radio buttons) under MPL-2.0 with copyright attribution.
+- Restore original Flint's 580 × 386 DIP initial window dimensions, persist resizing and use HWND DPI to derive physical pixel sizes.
+- Restore Flint's 38-DIP title row, auto-sized search textbox, original footer icons and 72-DIP logo placeholder (brand-swapped).
+- Preserve TOEFL/IELTS internal calculator entry beside Glossary, local vocabulary services, and independent app/database update actions.
+- Version synchronized to 0.1.5.0.
+
 ## [0.1.4] - 2026-10-11
 - Restore the agreed sense-first entry structure in the Windows UI: part-of-speech headers, Chinese/Japanese/English fields for each sense, pronunciation, inflections, synonyms, antonyms, valency, phrases/collocations, examples, CEFR and exam tags.
 - Reserve each section with "待补充" when the installed lexicon lacks that data, instead of hiding the content area.

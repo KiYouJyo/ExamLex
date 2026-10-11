@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Windows.System;
 using System.Diagnostics;
+using Windows.Media.SpeechSynthesis;
 
 namespace ExamLex.Views;
 
@@ -17,8 +18,7 @@ public sealed partial class SettingsPage : Page
     public SettingsPage()
     {
         InitializeComponent();
-        Loaded += (_, _) => DispatcherQueue.TryEnqueue(() =>
-            SettingsScroll.ChangeView(null, 0, null, true));
+        Loaded += (_, _) => DispatcherQueue.TryEnqueue(() => SettingsScroll.ChangeView(null, 0, null, true));
     }
 
     public void Initialize(AppSettings settings, DictionaryStore store, Action applySettings,
@@ -33,13 +33,22 @@ public sealed partial class SettingsPage : Page
         _dictionaryChanged=dictionaryChanged;
         _backHome=backHome;
         ThemeBox.SelectedIndex=Math.Clamp(settings.Appearance,0,2);
-        BackdropBox.SelectedIndex=Math.Clamp(settings.Backdrop,0,2);
-        SearchStyleBox.SelectedIndex=Math.Clamp(settings.SearchStyle,0,2);
+        BackdropBox.SelectedIndex=settings.Backdrop==2?1:0;
+        // Flint's three illustrated RadioButton previews, not a new ComboBox.
+        switch (Math.Clamp(settings.SearchStyle,0,2))
+        {
+            case 0: ModernStyleRadio.IsChecked=true; break;
+            case 1: RoundStyleRadio.IsChecked=true; break;
+            default: ClassicStyleRadio.IsChecked=true; break;
+        }
         DefinitionSwitch.IsOn=settings.ShowEnglishDefinition;
-        GlossarySwitch.IsOn=settings.EnableGlossary;
-        TtsSwitch.IsOn=settings.EnableTts;
-        VolumeSlider.Value=settings.TtsVolume;
+        EnableGlossaryToggleSwitch.IsOn=settings.EnableGlossary;
+        EnableTTSToggleSwitch.IsOn=settings.EnableTts;
+        VolumeSlider.Value=Math.Clamp(settings.TtsVolume/10d,1,10);
         ClearSwitch.IsOn=settings.AutoClearSearch;
+        TTSVoicesComboBox.Items.Clear();
+        TTSVoicesComboBox.Items.Add("默认声音");
+        TTSVoicesComboBox.SelectedIndex=0;
         DatabaseVersionText.Text="本机词库："+_lexicon.InstalledVersion;
         _ready=true;
     }
@@ -47,13 +56,13 @@ public sealed partial class SettingsPage : Page
     {
         if(!_ready || _settings is null) return;
         _settings.Appearance=ThemeBox.SelectedIndex;
-        _settings.Backdrop=BackdropBox.SelectedIndex;
-        _settings.SearchStyle=SearchStyleBox.SelectedIndex;
+        _settings.Backdrop=BackdropBox.SelectedIndex==1?2:1;
+        _settings.SearchStyle=ModernStyleRadio.IsChecked==true?0:RoundStyleRadio.IsChecked==true?1:2;
         _settings.ShowEnglishDefinition=DefinitionSwitch.IsOn;
-        _settings.EnableGlossary=GlossarySwitch.IsOn;
-        _settings.EnableTts=TtsSwitch.IsOn;
+        _settings.EnableGlossary=EnableGlossaryToggleSwitch.IsOn;
+        _settings.EnableTts=EnableTTSToggleSwitch.IsOn;
         _settings.AutoClearSearch=ClearSwitch.IsOn;
-        _settings.TtsVolume=(int)VolumeSlider.Value;
+        _settings.TtsVolume=(int)Math.Round(VolumeSlider.Value*10);
         _settings.Save();
         _applySettings?.Invoke();
     }
@@ -61,6 +70,38 @@ public sealed partial class SettingsPage : Page
     private void OnPreferenceChanged(object sender, SelectionChangedEventArgs e) => SavePreferences();
     private void OnVolumeChanged(object sender, Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventArgs e)
         => SavePreferences();
+
+    private void OnSearchStyleChecked(object sender, RoutedEventArgs e) => SavePreferences();
+
+    private void OnSettingsScrollChanged(object sender, ScrollViewerViewChangedEventArgs e)
+    {
+        // Flint3 SettingsPage.xaml.cs's scroll-driven sticky title behavior.
+        if (sender is ScrollViewer viewer)
+        {
+            double maxOffset = Math.Min(160, viewer.ScrollableHeight);
+            if (maxOffset <= 0) return;
+            double opacity = Math.Clamp(viewer.VerticalOffset/maxOffset,0,1);
+            SettingsPageHeaderTitleGrid.Opacity=opacity;
+            SettingsPageHeaderSeperatorLineBorder.Opacity=opacity;
+        }
+    }
+
+    private void OnVoiceChanged(object sender, SelectionChangedEventArgs e) { }
+
+    private async void OnHearVoiceClicked(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            using var synth = new SpeechSynthesizer();
+            var stream = await synth.SynthesizeTextToStreamAsync("ExamLex");
+            using var player = new Windows.Media.Playback.MediaPlayer();
+            player.Source = Windows.Media.Core.MediaSource.CreateFromStream(stream,stream.ContentType);
+            player.Volume=(_settings?.TtsVolume ?? 80)/100d;
+            player.Play();
+            await Task.Delay(1200);
+        }
+        catch (Exception ex) { AppUpdateStatus.Text="朗读失败："+ex.Message; }
+    }
 
     private void OnBackClicked(object sender, RoutedEventArgs e) => _backHome?.Invoke();
 
