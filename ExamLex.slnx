@@ -1,0 +1,6 @@
+<Solution>
+  <Configurations><Platform Name="x64" /></Configurations>
+  <Project Path="src/ExamLex.Core/ExamLex.Core.csproj" />
+  <Project Path="src/ExamLex/ExamLex.csproj" />
+  <Project Path="tests/ExamLex.Core.Tests/ExamLex.Core.Tests.csproj" />
+</Solution>

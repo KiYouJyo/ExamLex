@@ -1,0 +1,28 @@
+# .NET, WinUI, Visual Studio and artifacts
+.vs/
+.vscode/
+**/bin/
+**/obj/
+TestResults/
+artifacts/
+publish/
+*.user
+*.suo
+*.cache
+*.pfx
+*.snk
+*.msix
+*.msixbundle
+*.msixupload
+*.appx
+*.appxbundle
+*.db
+*.db-shm
+*.db-wal
+*.sqlite*
+!docs/*.sqlite.md
+# Dictionary data must never ship in the repository
+*.7z
+*.zip
+*.mdx
+*.mdd
