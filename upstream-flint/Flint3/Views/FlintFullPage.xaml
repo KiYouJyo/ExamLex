@@ -1,0 +1,240 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Name="FlintFullViewPage"
+    x:Class="Flint3.Views.FlintFullPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Flint3.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls" 
+    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+    xmlns:animations="using:CommunityToolkit.WinUI.Animations"
+    xmlns:cvt="using:Flint3.Converters" 
+    xmlns:mdl="using:Flint3.Data.Models" 
+    xmlns:controls="using:Flint3.Controls"
+    Background="Transparent" NavigationCacheMode="Required" Loaded="Page_Loaded">
+
+    <Page.Resources>
+        <cvt:Int2VisibilityConverter x:Key="Int2Vis"/>
+        <cvt:Equal2VisibilityConverter x:Key="Eql2Vis"/>
+        <cvt:LineBreaksRemover x:Key="LinebreakRemove"/>
+        <cvt:Bool2VisibilityConverter x:Key="Bool2Vis"/>
+        <cvt:NullOrEmpty2VisibilityConverter x:Key="Null2Vis"/>
+        <cvt:IsExpanded2OpacityConverter x:Key="Bool2Opacity"/>
+    </Page.Resources>
+
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="38"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!--标题-->
+        <Grid Grid.Row="0" Background="Transparent">
+            <TextBlock Text="Flint" FontFamily="Times New Roman" Margin="20,0,0,4" FontWeight="Bold" FontSize="20" VerticalAlignment="Bottom" Opacity="0.9"/>
+        </Grid>
+
+        <!--搜索框-->
+        <Grid Grid.Row="1" Padding="16,0" Margin="0,4,0,0">
+            <TextBox x:Name="SearchTextBox" x:FieldModifier="public" TextChanged="SearchTextBox_TextChanged"/>
+            <TextBlock Text="开始键入..." Margin="16,6,0,0" FontSize="17.5" Opacity="0.3" HorizontalAlignment="Left" IsHitTestVisible="False" VerticalAlignment="Top"
+                       Visibility="{x:Bind SearchTextBox.Text.Length,Mode=OneWay,Converter={StaticResource Int2Vis},ConverterParameter=-}"/>
+        </Grid>
+
+        <!--占位图片-->
+        <Grid Grid.Row="2" Visibility="{x:Bind ViewModel.SearchResultWordItems.Count,Mode=OneWay,Converter={StaticResource Int2Vis},ConverterParameter=-}" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image Source="/Assets/Logos/flint_logo.png" Height="72" Width="72" Opacity="0.2" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <animations:Implicit.ShowAnimations>
+                    <animations:TranslationAnimation From="0,32,0" To="0,0,0" EasingMode="EaseOut" Duration="0:0:0.8"/>
+                    <animations:OpacityAnimation To="0.2" Duration="0:0:0.4"/>
+                </animations:Implicit.ShowAnimations>
+                <animations:Implicit.HideAnimations>
+                    <animations:OpacityAnimation To="0" Duration="0:0:0.2"/>
+                </animations:Implicit.HideAnimations>
+            </Image>
+        </Grid>
+
+        <!--搜索结果列表-->
+        <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Top">
+            <ListView ItemsSource="{x:Bind ViewModel.SearchResultWordItems,Mode=OneWay}" HorizontalContentAlignment="Stretch" Margin="0,4,0,0" Padding="0,8,2,8" HorizontalAlignment="Stretch" SelectionMode="None" IsItemClickEnabled="False" IsSwipeEnabled="False">
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="mdl:StarDictWordItem">
+                        <muxc:Expander x:Name="WordExpander" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" IsExpanded="False">
+                            <muxc:Expander.Header>
+                                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Orientation="Vertical" Margin="0,8,0,8" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                        <Grid HorizontalAlignment="Stretch">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="{x:Bind Word}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" IsTextSelectionEnabled="True"/>
+                                            <TextBlock Grid.Column="1" Margin="8,0,0,0" FontSize="16" Opacity="0.5" FontWeight="Light" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                       Visibility="{x:Bind Phonetic,Converter={StaticResource Null2Vis}}" IsTextSelectionEnabled="True" TextTrimming="CharacterEllipsis">
+                                                <Run Text="/" FontSize="14"/>
+                                                <Run Text="{x:Bind Phonetic}"/>
+                                                <Run Text="/" FontSize="14"/>
+                                            </TextBlock>
+                                        </Grid>
+                                        <TextBlock Text="{x:Bind Translation,Converter={StaticResource LinebreakRemove}}" FontSize="13" MaxLines="2" LineHeight="20" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
+                                                   Opacity="{Binding ElementName=WordExpander,Path=IsExpanded,Mode=OneWay,Converter={StaticResource Bool2Opacity}}"/>
+                                    </StackPanel>
+                                    <Button Grid.Column="1" Padding="0" Height="32" Width="32" Margin="16,0,-8,0" Background="Transparent" BorderBrush="Transparent" ToolTipService.ToolTip="朗读单词"
+                                            Visibility="{Binding ViewModel.AppSettings.EnableTTS,ElementName=FlintFullViewPage,Mode=OneWay,Converter={StaticResource Bool2Vis}}"
+                                            Click="OnClickReadWord">
+                                        <Button.Content>
+                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE767;" FontSize="12" Opacity="0.8"/>
+                                        </Button.Content>
+                                    </Button>
+                                    <Button Grid.Column="2" Padding="0" Height="32" Width="32" Margin="16,0,-8,0" Background="Transparent" BorderBrush="Transparent" ToolTipService.ToolTip="添加到生词本"
+                                            Visibility="{Binding ViewModel.AppSettings.EnableGlossary,ElementName=FlintFullViewPage,Mode=OneWay,Converter={StaticResource Bool2Vis}}"
+                                            Click="OnClickAddWordToGlossary">
+                                        <Button.Content>
+                                            <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE109;" FontSize="12" Opacity="0.8"/>
+                                        </Button.Content>
+                                    </Button>
+                                </Grid>
+                            </muxc:Expander.Header>
+                            <muxc:Expander.Content>
+                                <StackPanel Orientation="Vertical">
+                                    <Grid HorizontalAlignment="Stretch">
+                                        <TextBlock Text="{x:Bind Translation}" Opacity="0.7" TextWrapping="Wrap" LineHeight="24" IsTextSelectionEnabled="True"/>
+                                    </Grid>
+                                    <Grid HorizontalAlignment="Stretch" Margin="0,8,0,0" Visibility="{x:Bind Definition,Converter={StaticResource Null2Vis}}">
+                                        <TextBlock Text="{x:Bind Definition}" Opacity="0.7" TextWrapping="Wrap" LineHeight="24" IsTextSelectionEnabled="True"/>
+                                    </Grid>
+                                    <Grid HorizontalAlignment="Stretch" CornerRadius="4" Padding="0,12,0,0" Visibility="{x:Bind Exchanges,Converter={StaticResource Null2Vis}}">
+                                        <muxc:ItemsRepeater ItemsSource="{x:Bind Exchanges}">
+                                            <muxc:ItemsRepeater.Layout>
+                                                <muxc:StackLayout Spacing="8" Orientation="Vertical"/>
+                                            </muxc:ItemsRepeater.Layout>
+                                            <DataTemplate x:DataType="mdl:WordExchangeItem">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0" Background="{ThemeResource SETTING_ITEM_BK}" Padding="6,2,6,4" CornerRadius="8">
+                                                        <TextBlock Text="{x:Bind Type}" FontWeight="Light" FontSize="12.5" Opacity="0.6"/>
+                                                    </Border>
+                                                    <TextBlock Grid.Column="1" Text="{x:Bind Word}" FontSize="14" Margin="6,0,0,0" Opacity="0.8" IsTextSelectionEnabled="True"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </muxc:ItemsRepeater>
+                                    </Grid>
+                                </StackPanel>
+                            </muxc:Expander.Content>
+                        </muxc:Expander>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+
+        <!--工具栏-->
+        <Grid Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle Grid.ColumnSpan="5" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Fill="{ThemeResource ControlElevationBorderBrush}"/>
+
+            <!--设置按钮-->
+            <Button x:Name="SettingsButton" Grid.Column="0" Margin="8,8,0,8" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Center" Click="OnClickSettingsButton">
+                <ToolTipService.ToolTip>
+                    <ToolTip>
+                        <TextBlock>
+                            <Run Text="setting" FontWeight="Bold"/>
+                            <Run Text="/ˈset.ɪŋ/"/>
+                            <Run Text="noun" FontStyle="Italic" FontWeight="Medium"/>
+                            <Run Text="设置"/>
+                        </TextBlock>
+                    </ToolTip>
+                </ToolTipService.ToolTip>
+                <muxc:AnimatedIcon x:Name="SettingsAnimatedIcon" Height="22" Width="22" Opacity="0.8">
+                    <muxc:AnimatedIcon.Source>
+                        <animatedvisuals:AnimatedSettingsVisualSource/>
+                    </muxc:AnimatedIcon.Source>
+                    <muxc:AnimatedIcon.FallbackIconSource>
+                        <muxc:SymbolIconSource Symbol="Setting"/>
+                    </muxc:AnimatedIcon.FallbackIconSource>
+                </muxc:AnimatedIcon>
+            </Button>
+
+            <!--新手教程按钮-->
+            <Button x:Name="NewFeatureButton" Grid.Column="2" Visibility="Collapsed" VerticalAlignment="Center" Click="OnClickShowMeNewFeature" Style="{StaticResource AccentButtonStyle}">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF133;" FontSize="15" Margin="0,0,4,0"/>
+                    <TextBlock Text="欢迎使用 " FontSize="12"/>
+                </StackPanel>
+            </Button>
+
+            <!--生词本按钮-->
+            <Button x:Name="GlossaryButton" Grid.Column="3" Margin="4,8,0,8" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Center" Click="OnClickGlossary"
+                    Visibility="{x:Bind ViewModel.AppSettings.EnableGlossary,Mode=OneWay,Converter={StaticResource Bool2Vis}}">
+                <ToolTipService.ToolTip>
+                    <ToolTip>
+                        <TextBlock>
+                            <Run Text="glossary" FontWeight="Bold"/>
+                            <Run Text="/ˈglɒsәri/"/>
+                            <Run Text="noun" FontStyle="Italic" FontWeight="Medium"/>
+                            <Run Text="生词本"/>
+                        </TextBlock>
+                    </ToolTip>
+                </ToolTipService.ToolTip>
+                <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE82D;" FontSize="16" Height="22" Width="22" Opacity="0.8"/>
+            </Button>
+
+            <!--置顶按钮-->
+            <ToggleButton x:Name="PinToggleButton" Grid.Column="4" Margin="4,8,8,8" IsChecked="False" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Center" Click="OnClickPin">
+                <ToolTipService.ToolTip>
+                    <ToolTip>
+                        <TextBlock>
+                            <Run Text="topmost" FontWeight="Bold"/>
+                            <Run Text="/ˈtɒp.məʊst/"/>
+                            <Run Text="adjective" FontStyle="Italic" FontWeight="Medium"/>
+                            <Run Text="置顶"/>
+                        </TextBlock>
+                    </ToolTip>
+                </ToolTipService.ToolTip>
+                <Grid>
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE141;" FontSize="16" Height="22" Width="22" Opacity="0.8"
+                              Visibility="{x:Bind PinToggleButton.IsChecked,Mode=OneWay,Converter={StaticResource Bool2Vis},ConverterParameter=-}"/>
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE196;" FontSize="16" Height="22" Width="22" Opacity="0.8"
+                              Visibility="{x:Bind PinToggleButton.IsChecked,Mode=OneWay,Converter={StaticResource Bool2Vis}}"/>
+                </Grid>
+            </ToggleButton>
+        </Grid>
+
+        <!--教程 1/2-->
+        <Border x:Name="FirstTeachingTipTargetBorder" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="1" Height="1" Margin="0,0,40,0"/>
+        <TeachingTip x:Name="FirstTeachingTip" Target="{x:Bind FirstTeachingTipTargetBorder}" IsOpen="False" Title="欢迎使用燧石" Subtitle="点击关闭按钮或者按下 Esc 会将燧石隐藏到系统托盘" PreferredPlacement="BottomLeft"
+                     CloseButtonContent="我知道了" CloseButtonClick="OnClickCloseFirstTeachingTip">
+            <TeachingTip.HeroContent>
+                <Image Source="/Assets/teachingtip_img.jpg" Stretch="UniformToFill" Height="115" HorizontalAlignment="Right"/>
+            </TeachingTip.HeroContent>
+            <TeachingTip.Content>
+                <TextBlock Text="想要退出燧石，请右键系统托盘图标" TextWrapping="Wrap" FontSize="13" Margin="0,2,0,0" Opacity="0.7"/>
+            </TeachingTip.Content>
+        </TeachingTip>
+
+        <!--教程 2/2-->
+        <Border x:Name="SecondTeachingTipTargetBorder" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Top" Width="1" Height="1" Margin="32,0,0,0"/>
+        <TeachingTip x:Name="SecondTeachingTip" Target="{x:Bind SecondTeachingTipTargetBorder}" IsOpen="False" Title="快速唤醒燧石" Subtitle="按下 Alt + 空格键 可以将燧石窗口唤醒" PreferredPlacement="TopRight"
+                     CloseButtonContent="我知道了" CloseButtonClick="OnClickCloseSecondTeachingTip">
+            <TeachingTip.Content>
+                <TextBlock Text="可以在设置中修改为更加趁手的快捷键" TextWrapping="Wrap" FontSize="13" Margin="0,2,0,0" Opacity="0.7"/>
+            </TeachingTip.Content>
+        </TeachingTip>
+    </Grid>
+</Page>
