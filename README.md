@@ -3,20 +3,20 @@
 <p align="center">
   <a href="https://github.com/KiYouJyo/ExamLex/actions/workflows/ci.yml"><img src="https://github.com/KiYouJyo/ExamLex/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/Windows-WinUI%203-0078D4" alt="WinUI 3">
-  <img src="https://img.shields.io/badge/Development-0.1.4-blue" alt="Version">
+  <img src="https://img.shields.io/badge/Development-0.1.5-blue" alt="Version">
   <img src="https://img.shields.io/badge/Dictionary-Empty-lightgrey" alt="Empty dictionary">
 </p>
 <p align="center">简体中文 · <a href="README.en-US.md">English</a> · <a href="README.ja-JP.md">日本語</a></p>
 
 ## 项目简介
 
-ExamLex 是基于 **WinUI 3** 的本地优先桌面应用。主页布局参考开源项目 [Flint](https://github.com/sh0ckj0ckey/Flint) 的深色词典界面；本项目重新实现 UI 与业务代码，不复制原项目的词库、图标或专有品牌素材。
+ExamLex 是基于 **WinUI 3** 的本地优先桌面应用。主页与设置页的布局、交互控件模板实际移植自开源项目 [Flint](https://github.com/sh0ckj0ckey/Flint)（MPL-2.0）；品牌和数据接口替换为 ExamLex。原版 XAML 源文件保存在 `upstream-flint/` 供差异审计，不包含 Flint 词库和品牌图片。
 
-**当前为 0.1.4 基础工程，不是可用的完整英语词典。** 首次启动不捆绑词库。设置页可独立检查并下载 [ExamLex-Lexicon](https://github.com/KiYouJyo/ExamLex-Lexicon) 正式 Schema v1 SQLite 发布物；当前公开的只是小规模 A1 测试版，不是 Oxford A1 完整词表。不会下载或解压 Flint/ECDICT 数据包。
+**当前为 0.1.5 基础工程，不是可用的完整英语词典。** 首次启动不捆绑词库。设置页可独立检查并下载 [ExamLex-Lexicon](https://github.com/KiYouJyo/ExamLex-Lexicon) 正式 Schema v1 SQLite 发布物；当前公开的只是小规模 A1 测试版，不是 Oxford A1 完整词表。不会下载或解压 Flint/ECDICT 数据包。
 
 ## 已有功能
 
-- **词典主页与内页导航**：缩小的 DPI 感知窗口、单词搜索、内部算分页与 Flint 风格设置页、底栏设置/算分器/生词本/窗口置顶。
+- **词典主页与内页导航**：与 Flint 一致的 580×386 DIP 初始窗口及原版控件模板、单词搜索、内部算分页与 Flint 风格设置页、底栏设置/算分器/生词本/窗口置顶。
 - **算分器入口**：主页底栏，**在生词本按钮左侧**（与需求截图红框位置一致）。
 - **新版 TOEFL iBT**（2026-01-21 起）：四科 1–6、0.5 步长，四科平均并取最近 0.5；显示 CEFR 与旧制总分**参考区间**。
 - **IELTS**：四科 0–9、0.5 步长，按官方 0.5 档进位。
@@ -36,7 +36,7 @@ dotnet test tests/ExamLex.Core.Tests/ExamLex.Core.Tests.csproj -c Release
 msbuild src/ExamLex/ExamLex.csproj /restore /p:Configuration=Release /p:Platform=x64
 ```
 
-在 Visual Studio 打开 `ExamLex.slnx`，选择 **ExamLex** 为启动项目，使用 **x64** 运行。现已提供 [签名 MSIX 验收工作流](https://github.com/KiYouJyo/ExamLex/actions/workflows/msix-acceptance.yml)；在 Actions 的构建产物中下载 `ExamLex_0.1.4.0_x64.msix` 与公开证书。验收版不是 Microsoft Store 已审核发布包，安装说明见 [packaging/INSTALL.md](packaging/INSTALL.md)。
+在 Visual Studio 打开 `ExamLex.slnx`，选择 **ExamLex** 为启动项目，使用 **x64** 运行。现已提供 [签名 MSIX 验收工作流](https://github.com/KiYouJyo/ExamLex/actions/workflows/msix-acceptance.yml)；在 Actions 的构建产物中下载 `ExamLex_0.1.5.0_x64.msix` 与公开证书。验收版不是 Microsoft Store 已审核发布包，安装说明见 [packaging/INSTALL.md](packaging/INSTALL.md)。
 
 ## 项目结构
 
@@ -50,7 +50,7 @@ docs/                         架构、UI、路线图、规则与发布说明
 
 ## 资料与版权
 
-- 界面布局灵感：[Flint](https://github.com/sh0ckj0ckey/Flint) · MPL-2.0，作者 sh0ckj0ckey。ExamLex 不包含其源码或内置词典。
+- 界面移植来源：[Flint](https://github.com/sh0ckj0ckey/Flint) · MPL-2.0，作者 sh0ckj0ckey。ExamLex 包含注明许可的 Flint XAML 与控件样式源代码；不包含其内置词典或品牌图片。
 - 托福：[ETS TOEFL score scales](https://www.ets.org/toefl/test-takers/ibt/scores/understand-scores.html)。
 - 雅思：[IELTS official scoring](https://ielts.org/take-a-test/your-results/ielts-scoring-in-detail)。
 

@@ -2,9 +2,9 @@
 
 A local-first Windows WinUI 3 dictionary shell and score calculator for TOEFL iBT and IELTS.
 
-**Status: v0.1.3 foundation.** The dictionary deliberately ships with **zero vocabulary entries**. On first launch no dictionary is bundled. Settings can independently check/download the published canonical SQLite schema v1 from ExamLex-Lexicon with SHA256 verification. The initial published A1 data is a limited development pilot, not the complete Oxford list. No Flint or ECDICT data is bundled.
+**Status: v0.1.5 foundation.** The dictionary deliberately ships with **zero vocabulary entries**. On first launch no dictionary is bundled. Settings can independently check/download the published canonical SQLite schema v1 from ExamLex-Lexicon with SHA256 verification. The initial published A1 data is a limited development pilot, not the complete Oxford list. No Flint or ECDICT data is bundled.
 
-The UI takes inspiration from the dark layout of [Flint](https://github.com/sh0ckj0ckey/Flint) (MPL-2.0). This is a separate implementation, with no upstream word data or assets. The calculator button appears in the bottom toolbar immediately **to the left of the glossary button**.
+The UI ports the original view structure and control templates of [Flint](https://github.com/sh0ckj0ckey/Flint) (MPL-2.0). The adapted Flint XAML sources are included under MPL-2.0 with attribution; no upstream dictionary data or branded images are included. The calculator button appears in the bottom toolbar immediately **to the left of the glossary button**.
 
 ## Build
 
