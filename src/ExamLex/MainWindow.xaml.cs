@@ -183,58 +183,264 @@ public sealed partial class MainWindow : Window
         ResultsScroll.Visibility=Visibility.Collapsed;
         ResultsPanel.Children.Clear();
     }
+    // The established ExamLex word-entry contract is always rendered, even
+    // when the current source database has not filled a section yet.
+    // Never flatten senses or put unrelated examples at the end of a word.
     private UIElement CreateEntryCard(DictionaryEntry entry)
     {
-        var content=new StackPanel{Spacing=7};
-        var title=new StackPanel{Orientation=Orientation.Horizontal,Spacing=12};
-        title.Children.Add(new TextBlock{
-            Text=entry.Word,FontSize=26,
-            FontWeight=Microsoft.UI.Text.FontWeights.SemiBold
+        var content = new StackPanel { Spacing = 8 };
+
+        var header = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 12 };
+        header.Children.Add(new TextBlock {
+            Text = entry.Word, FontSize = 28,
+            FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+            VerticalAlignment = VerticalAlignment.Center
         });
-        if(!string.IsNullOrWhiteSpace(entry.Phonetic))
-            title.Children.Add(new TextBlock{
-                Text=entry.Phonetic,FontSize=16,Opacity=0.72,
-                VerticalAlignment=VerticalAlignment.Center
+        if (!string.IsNullOrWhiteSpace(entry.Cefr))
+            header.Children.Add(new TextBlock {
+                Text = entry.Cefr, FontSize = 13,
+                VerticalAlignment = VerticalAlignment.Center, Opacity = 0.72
             });
-        content.Children.Add(title);
-        AddText(content,entry.Translation,18);
-        if(_preferences.ShowEnglishDefinition)AddText(content,entry.Definition,15);
-        if(!string.IsNullOrWhiteSpace(entry.Cefr))AddText(content,"CEFR · "+entry.Cefr,14);
-        if(entry.ExamTags.Count>0)AddText(content,"Exam · "+string.Join(" · ",entry.ExamTags),14);
-        if(entry.Examples.Count>0)
+        content.Children.Add(header);
+
+        var pronunciations = entry.Pronunciations
+            .Select(p => (p.Accent is null ? "" : p.Accent + "  ") + p.Ipa)
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+        AddField(content, "音标 · Pronunciation",
+            pronunciations.Count == 0 ? null : string.Join("  ·  ", pronunciations.Take(4))
+            + (pronunciations.Count > 4 ? $"  · 另有 {pronunciations.Count - 4} 条发音记录" : ""));
+
+        // 1. Senses grouped by the actual source part of speech.
+        // Every sense always reserves its own Chinese, Japanese and English fields.
+        if (entry.Senses.Count == 0)
         {
-            AddText(content,"例句",13);
-            foreach(var sentence in entry.Examples)AddText(content,sentence,15);
+            AddSectionTitle(content, "词性与义项 · Parts of speech & meanings");
+            AddMissing(content, "暂无义项，等待词库补充。");
         }
-        var controls=new StackPanel{Orientation=Orientation.Horizontal,Spacing=8,
-            HorizontalAlignment=HorizontalAlignment.Right};
-        if(_preferences.EnableTts)
+        else
         {
-            var speak=new Button{Content="朗读"};
-            speak.Click+=async (_,_)=>await SpeakAsync(entry.Word);
+            foreach (var group in entry.Senses.GroupBy(x => x.PartOfSpeech))
+            {
+                AddSectionTitle(content, PosTitle(group.Key));
+                foreach (var sense in group)
+                {
+                    var sensePanel = new StackPanel { Spacing = 6 };
+                    AddCaption(sensePanel, "义项 " + sense.Number);
+                    AddField(sensePanel, "中文", JoinTranslations(sense.Translations, "zh"));
+                    AddField(sensePanel, "日本語", JoinTranslations(sense.Translations, "ja"));
+                    AddField(sensePanel, "English",
+                        _preferences.ShowEnglishDefinition ? sense.EnglishDefinition
+                            : "已在设置中隐藏英文释义");
+                    content.Children.Add(Subcard(sensePanel));
+                }
+            }
+        }
+
+        // 2. Morphology — permanently reserved, not hidden on empty datasets.
+        AddSectionTitle(content, "词形变化 · Inflections");
+        if (entry.Inflections.Count == 0) AddMissing(content, "待补充");
+        else
+            foreach (var item in entry.Inflections)
+                AddField(content, PosShort(item.PartOfSpeech) + " · " +
+                    FormatFormType(item.FormType), item.Form);
+
+        // 3. Semantic relationships; each record names its parent sense.
+        AddSectionTitle(content, "近义词 · Synonyms");
+        AddRelations(content, entry.Senses, "synonym");
+        AddSectionTitle(content, "反义词 · Antonyms");
+        AddRelations(content, entry.Senses, "antonym");
+
+        // 4. Valency patterns and phrases remain separate, as agreed.
+        AddSectionTitle(content, "配价 · Valency patterns");
+        AddExpressions(content, entry.Senses, "valency");
+        AddSectionTitle(content, "词组与搭配 · Phrases & collocations");
+        AddExpressions(content, entry.Senses, "phrases");
+
+        // 5. Examples keep their sense, Chinese and Japanese alignment.
+        AddSectionTitle(content, "例句 · Examples");
+        bool hasExamples = false;
+        foreach (var sense in entry.Senses)
+        {
+            foreach (var example in sense.Examples)
+            {
+                hasExamples = true;
+                var panel = new StackPanel { Spacing = 5 };
+                AddCaption(panel, SenseLabel(sense));
+                AddField(panel, "English", example.English);
+                AddField(panel, "中文", JoinTranslations(example.Translations, "zh"));
+                AddField(panel, "日本語", JoinTranslations(example.Translations, "ja"));
+                content.Children.Add(Subcard(panel));
+            }
+        }
+        if (!hasExamples) AddMissing(content, "待补充");
+
+        AddSectionTitle(content, "考试标签 · Exam tags");
+        AddMissing(content, entry.ExamTags.Count > 0
+            ? string.Join(" · ", entry.ExamTags) : "待补充");
+
+        var controls = new StackPanel {
+            Orientation = Orientation.Horizontal, Spacing = 8,
+            HorizontalAlignment = HorizontalAlignment.Right
+        };
+        if (_preferences.EnableTts)
+        {
+            var speak = new Button { Content = "朗读" };
+            speak.Click += async (_, _) => await SpeakAsync(entry.Word);
             controls.Children.Add(speak);
         }
-        if(_preferences.EnableGlossary)
+        if (_preferences.EnableGlossary)
         {
-            var save=new Button{Content=_savedWords.Contains(entry.Word)?"已收藏":"加入生词本"};
-            save.Click+=(_,_)=>{
-                _savedWords.Add(entry.Word);SaveSavedWords();save.Content="已收藏";
+            var save = new Button { Content = _savedWords.Contains(entry.Word) ? "已收藏" : "加入生词本" };
+            save.Click += (_, _) => {
+                _savedWords.Add(entry.Word);
+                SaveSavedWords();
+                save.Content = "已收藏";
             };
             controls.Children.Add(save);
         }
         content.Children.Add(controls);
-        return new Border{
-            Background=new SolidColorBrush(Root.RequestedTheme==ElementTheme.Light?
-                Color.FromArgb(255,234,242,240):Color.FromArgb(255,37,47,46)),
-            CornerRadius=new CornerRadius(10),Padding=new Thickness(20),
-            Child=content
+        return new Border {
+            Background = Brush(240, 246, 244, 37, 47, 46),
+            BorderBrush = Brush(214, 224, 221, 59, 66, 64),
+            BorderThickness = new Thickness(1),
+            CornerRadius = new CornerRadius(12),
+            Padding = new Thickness(16),
+            Child = content
         };
     }
-    private static void AddText(StackPanel panel,string? text,double size)
+
+    private static string PosShort(string pos) => pos switch {
+        "noun" => "n.", "verb" => "v.", "adj" => "adj.",
+        "adv" => "adv.", "prep" => "prep.", "pron" => "pron.",
+        "det" => "det.", "conj" => "conj.", "intj" => "interj.",
+        "num" => "num.", "article" => "art.", _ => pos
+    };
+
+    private static string PosTitle(string pos) => pos switch {
+        "noun" => "Noun · 名词 · 名詞",
+        "verb" => "Verb · 动词 · 動詞",
+        "adj" => "Adjective · 形容词 · 形容詞",
+        "adv" => "Adverb · 副词 · 副詞",
+        "prep" => "Preposition · 介词 · 前置詞",
+        "pron" => "Pronoun · 代词 · 代名詞",
+        "det" => "Determiner · 限定词 · 限定詞",
+        "conj" => "Conjunction · 连词 · 接続詞",
+        "intj" => "Interjection · 感叹词 · 間投詞",
+        "num" => "Numeral · 数词 · 数詞",
+        "article" => "Article · 冠词 · 冠詞",
+        _ => pos + " · 其他词性"
+    };
+
+    private static string SenseLabel(DictionarySense sense) =>
+        PosShort(sense.PartOfSpeech) + " · 义项 " + sense.Number;
+
+    private static string? JoinTranslations(
+        IReadOnlyList<DictionaryTranslation> items, string language)
     {
-        if(string.IsNullOrWhiteSpace(text))return;
-        panel.Children.Add(new TextBlock{Text=text,FontSize=size,Opacity=0.85,TextWrapping=TextWrapping.Wrap});
+        var texts = items.Where(t => t.Language == language)
+            .Select(t => t.Text).Where(x => !string.IsNullOrWhiteSpace(x))
+            .Distinct().ToList();
+        return texts.Count == 0 ? null : string.Join("；", texts);
     }
+
+    private static string FormatFormType(string type) => type.Replace(';', ' · ')
+        .Replace('-', ' ');
+
+    private void AddRelations(
+        StackPanel panel, IReadOnlyList<DictionarySense> senses, string relationType)
+    {
+        bool found = false;
+        foreach (var sense in senses)
+        {
+            var words = sense.Relations.Where(r => r.Type == relationType)
+                .Select(r => r.RelatedWord).Distinct().ToList();
+            if (words.Count == 0) continue;
+            found = true;
+            AddField(panel, SenseLabel(sense), string.Join(" · ", words));
+        }
+        if (!found) AddMissing(panel, "待补充");
+    }
+
+    private void AddExpressions(
+        StackPanel panel, IReadOnlyList<DictionarySense> senses, string selection)
+    {
+        bool found = false;
+        foreach (var sense in senses)
+        {
+            var expressions = sense.Expressions.Where(x => selection == "valency"
+                ? x.Type == "valency"
+                : x.Type != "valency").ToList();
+            foreach (var expression in expressions)
+            {
+                found = true;
+                var item = new StackPanel { Spacing = 4 };
+                AddCaption(item, SenseLabel(sense) + " · " + expression.Type);
+                AddField(item, "English", expression.English);
+                AddField(item, "中文", expression.Chinese);
+                AddField(item, "日本語", expression.Japanese);
+                if (!string.IsNullOrWhiteSpace(expression.Notes))
+                    AddField(item, "Notes", expression.Notes);
+                panel.Children.Add(Subcard(item));
+            }
+        }
+        if (!found) AddMissing(panel, "待补充");
+    }
+
+    private void AddSectionTitle(StackPanel panel, string title)
+    {
+        panel.Children.Add(new Border {
+            Margin = new Thickness(0, 12, 0, 2),
+            Padding = new Thickness(0, 10, 0, 1),
+            BorderThickness = new Thickness(0, 1, 0, 0),
+            BorderBrush = Brush(213, 220, 218, 63, 70, 67),
+            Child = new TextBlock {
+                Text = title, FontSize = 17,
+                FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
+                TextWrapping = TextWrapping.Wrap
+            }
+        });
+    }
+
+    private static Border Subcard(UIElement child) => new() {
+        Margin = new Thickness(0, 3, 0, 3),
+        Padding = new Thickness(10, 9, 10, 10),
+        CornerRadius = new CornerRadius(6),
+        Background = new SolidColorBrush(Color.FromArgb(26, 144, 171, 164)),
+        Child = child
+    };
+
+    private static void AddCaption(StackPanel panel, string text) =>
+        panel.Children.Add(new TextBlock {
+            Text = text, FontSize = 12, Opacity = 0.60,
+            TextWrapping = TextWrapping.Wrap
+        });
+
+    private static void AddMissing(StackPanel panel, string text) =>
+        panel.Children.Add(new TextBlock {
+            Text = text, FontSize = 13, Opacity = 0.54,
+            TextWrapping = TextWrapping.Wrap
+        });
+
+    private static void AddField(StackPanel panel, string label, string? value)
+    {
+        var row = new StackPanel { Spacing = 3 };
+        row.Children.Add(new TextBlock {
+            Text = label + "：", FontSize = 12, Opacity = 0.65
+        });
+        row.Children.Add(new TextBlock {
+            Text = string.IsNullOrWhiteSpace(value) ? "待补充" : value,
+            FontSize = 15, TextWrapping = TextWrapping.Wrap,
+            Opacity = string.IsNullOrWhiteSpace(value) ? 0.45 : 0.95
+        });
+        panel.Children.Add(row);
+    }
+
+    private SolidColorBrush Brush(byte lr, byte lg, byte lb, byte dr, byte dg, byte db) =>
+        new(Root.RequestedTheme == ElementTheme.Light
+            ? Color.FromArgb(255, lr, lg, lb)
+            : Color.FromArgb(255, dr, dg, db));
+
     private async Task SpeakAsync(string word)
     {
         try
