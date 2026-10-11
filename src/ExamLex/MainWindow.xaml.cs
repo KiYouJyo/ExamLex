@@ -79,7 +79,7 @@ public sealed partial class MainWindow : Window
         var header = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 14 };
         header.Children.Add(new TextBlock
         {
-            Text = entry.Word, FontSize = 30, FontWeight = Windows.UI.Text.FontWeights.SemiBold,
+            Text = entry.Word, FontSize = 30, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
             Foreground = Brush(240, 245, 242)
         });
         if (!string.IsNullOrWhiteSpace(entry.Phonetic))
