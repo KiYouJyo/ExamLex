@@ -24,4 +24,17 @@ jobs:
       - name: Restore WinUI project
         run: dotnet restore src/ExamLex/ExamLex.csproj -p:Platform=x64
       - name: Build WinUI app
-        run: dotnet build src/ExamLex/ExamLex.csproj --no-restore -c Release -p:Platform=x64
+        shell: pwsh
+        run: |
+          dotnet build src/ExamLex/ExamLex.csproj --no-restore -c Release -p:Platform=x64 -v:diag *> xaml-build.log
+          $exit = $LASTEXITCODE
+          Get-Content xaml-build.log | Select-String -Pattern 'error|exception|WMC|XamlCompiler|fatal' -Context 3,2 | Select-Object -Last 160
+          exit $exit
+      - name: Inspect XAML outputs on failure
+        if: failure()
+        shell: pwsh
+        run: |
+          Get-ChildItem src/ExamLex/obj -Recurse -File -Include output.json,*.err,*.log | ForEach-Object {
+            Write-Host "==== $($_.FullName) ===="
+            Get-Content $_.FullName | Select-Object -Last 140
+          }
