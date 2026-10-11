@@ -6,7 +6,8 @@
   - CEFR level ranges are based on the overall band in ETS's 2026 concordance: A1=1–1.5; A2=2–2.5; B1=3–3.5; B2=4–4.5; C1=5–5.5; C2=6.
 - IELTS: https://ielts.org/take-a-test/your-results/ielts-scoring-in-detail
   - Four half-band section scores. Overall = mean rounded to nearest full/half band; averages ending in .25 or .75 round upward.
-- TOEIC L&R: https://www.ets.org/toeic/test-takers/listening-reading/scores.html
-  - Listening 5–495 and Reading 5–495, increments of 5; total 10–990. No direct CEFR inference from a summed score is provided.
+
 
 Do not confuse section scaled scores with number of correct answers. Always defer to issuing organizations' official score reports. This software is not affiliated with exam providers.
+
+- IELTS CEFR overall mapping (approximate): under 4.0 is below B1 / unclassified A1-A2; 4.0–5.0 B1; 5.5–6.5 B2; 7.0–8.0 C1; 8.5–9.0 C2. This is a band-level approximation, not a direct language certificate. Source: https://ielts.org/organisations/ielts-for-organisations/compare-ielts/ielts-and-the-cefr

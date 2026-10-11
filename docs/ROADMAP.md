@@ -19,3 +19,12 @@
 - [ ] Signed side-load and Microsoft Store packaging
 - [ ] Release workflow, integrity hashes, update channels
 - [ ] Performance and screen-reader audits
+
+## 0.1.1 — acceptance feedback
+- [x] Logical-size startup window and PerMonitorV2 DPI manifest
+- [x] TOEFL/IELTS internal calculator page, approximate IELTS CEFR; TOEIC calculator option removed
+- [x] Flint-inspired internal settings with persisted working appearance/search/preferences
+- [x] Separate software release and Lexicon SQLite release checks
+- [x] Pilot Lexicon release integration with manifest, hash and schema verification
+- [ ] Port Flint's global hotkeys, autostart and tray lifecycle safely
+- [ ] Inspect text rendering at 100/125/150/200 percent display scaling on physical devices
