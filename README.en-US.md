@@ -19,3 +19,5 @@ msbuild src/ExamLex/ExamLex.csproj /restore /p:Configuration=Release /p:Platform
 The TOEFL 2026 and IELTS tools average already scaled section scores; TOEIC L&R adds two scaled sections. This app does not predict scores from raw question counts or issue official score reports.
 
 See [Chinese README](README.md), [Architecture](docs/ARCHITECTURE.md) and [Roadmap](docs/ROADMAP.md). ExamLex is independent of ETS, IELTS test owners and the author of Flint.
+
+Signed sideload acceptance MSIX: [workflow](https://github.com/KiYouJyo/ExamLex/actions/workflows/msix-acceptance.yml) · [installation instructions](packaging/INSTALL.md). Not a Microsoft Store release.

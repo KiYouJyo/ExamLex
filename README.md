@@ -36,7 +36,7 @@ dotnet test tests/ExamLex.Core.Tests/ExamLex.Core.Tests.csproj -c Release
 msbuild src/ExamLex/ExamLex.csproj /restore /p:Configuration=Release /p:Platform=x64
 ```
 
-在 Visual Studio 打开 `ExamLex.slnx`，选择 **ExamLex** 为启动项目，使用 **x64** 运行。当前不包含 MSIX、商店签名或自动更新；发布包将在后续阶段建立。
+在 Visual Studio 打开 `ExamLex.slnx`，选择 **ExamLex** 为启动项目，使用 **x64** 运行。现已提供 [签名 MSIX 验收工作流](https://github.com/KiYouJyo/ExamLex/actions/workflows/msix-acceptance.yml)；在 Actions 的构建产物中下载 `ExamLex_0.1.0.0_x64.msix` 与公开证书。验收版不是 Microsoft Store 已审核发布包，安装说明见 [packaging/INSTALL.md](packaging/INSTALL.md)。
 
 ## 项目结构
 

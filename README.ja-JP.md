@@ -17,3 +17,5 @@ msbuild src/ExamLex/ExamLex.csproj /restore /p:Configuration=Release /p:Platform
 ```
 
 試験機関が公表する正式スコアではなく、入力した各セクションのスコアから合計を計算します。詳細は [中文说明](README.md)、[設計](docs/ARCHITECTURE.md)、[計画](docs/ROADMAP.md) を参照してください。
+
+署名済み MSIX テストパッケージ：[GitHub Actions](https://github.com/KiYouJyo/ExamLex/actions/workflows/msix-acceptance.yml) · [インストール手順](packaging/INSTALL.md)。Microsoft Store 版ではありません。

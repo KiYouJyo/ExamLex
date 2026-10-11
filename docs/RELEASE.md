@@ -1,12 +1,20 @@
-# Release process (planned)
+# ExamLex release engineering / 发布流程
 
-The current 0.1.0 repository targets Windows WinUI 3 x64 builds without a signed package. Before the first distribution:
-1. Create original ExamLex app/store logos and a package identity; never reuse Flint logo assets.
-2. Select MSIX or unpackaged installer strategy and ensure Windows App SDK runtime dependencies are handled.
-3. Add certificate signing through secure CI secrets; never commit PFX/keys.
-4. Produce checksums, release notes and a smoke-tested installer.
-5. Run score unit tests and WinUI Windows CI checks before tagging a release.
+## 0.1.0 MSIX acceptance / 验收包
 
-This document is not a claim that binaries or Microsoft Store releases already exist.
+The **Signed MSIX acceptance** GitHub Action builds and signs `ExamLex_0.1.0.0_x64.msix` with the repository-configured PFX signing certificate; it also exports a **public-only** CER, SHA256 checksums, and installation instructions as one GitHub Actions artifact.
 
-CI now produces an unsigned, unpackaged `ExamLex-win-x64-dev` artifact when the Windows MSBuild and core tests succeed. This is a **development build**, not a distributable installer; compatible Windows App SDK Runtime is required. The artifact is retained for 14 days.
+- Identity: `KiYouJyo.ExamLex`, independent from Eikura/Flint.
+- Version: `0.1.0.0`; Windows x64, Windows 10 19041+ / Windows 11.
+- Certificate must contain a private key and include a valid code-signing identity. Workflow updates manifest Publisher from its certificate Subject before packaging, then verifies the signed MSIX.
+- Expected repository Action Secrets: `GH_RELEASE_CERTIFICATE_BASE64` and `GH_RELEASE_CERTIFICATE_PASSWORD` (Eikura convention); ExamLex-specific `EXAMLEX_CERTIFICATE_BASE64` and `EXAMLEX_CERTIFICATE_PASSWORD` can substitute.
+- Never commit certificates, passwords or production PFX files. Only the exported public certificate goes to the artifact.
+- Initial x64 tiles are generated from an original monogram by `scripts/New-PackageAssets.ps1`. These are temporary acceptance visuals, **not Flint artwork**.
+- Download the artifact from [Signed MSIX acceptance workflow](https://github.com/KiYouJyo/ExamLex/actions/workflows/msix-acceptance.yml). Artifact retention: 30 days. See [installation instructions](../packaging/INSTALL.md).
+- This workflow doesn't publish to Microsoft Store or create a GitHub Release automatically.
+
+The regular CI workflow continues to run xUnit tests and an unpackaged-style WinUI compilation smoke check, while signed packaging is handled in a dedicated, secret-enabled workflow.
+
+## Next
+
+Build out reliable installation/launch smoke tests on Windows, better original ExamLex graphics, and Store-compliant publisher identity before publishing an official release.
