@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4] - 2026-10-11
+- Restore the agreed sense-first entry structure in the Windows UI: part-of-speech headers, Chinese/Japanese/English fields for each sense, pronunciation, inflections, synonyms, antonyms, valency, phrases/collocations, examples, CEFR and exam tags.
+- Reserve each section with "待补充" when the installed lexicon lacks that data, instead of hiding the content area.
+- Read related translations, examples, expressions, and semantic relations by sense ID; preserve all imported senses and associated example translations without the former 5-definition/3-example display caps.
+- Fix developer acceptance versioning: ship a separately installable 0.1.4.0 signed MSIX; users must update the app itself to see the new entry layout.
+- Lexicon data updates remain independent; this app build supports existing canonical SQLite schema v1.
+
 ## [0.1.3] - 2026-10-11
 - Restore Flint-proportioned 660 × 470 effective-pixel launch window (AppWindow converts through actual HWND DPI).
 - Restore Flint's 38-DIP title header, 54-DIP search row, 52-DIP bottom toolbar, Times New Roman title and compact 17-DIP controls.
