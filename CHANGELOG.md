@@ -1,4 +1,12 @@
 # Changelog
+## [0.1.1] - 2026-10-11
+- Smaller DPI-aware startup window; native per-monitor rendering.
+- Internal calculator page for TOEFL iBT (2026) and IELTS; approximate IELTS CEFR displayed. TOEIC removed from calculator.
+- Flint-inspired settings as a navigable page: appearance, backdrop, definitions, glossary, pronunciation, search, auto-clear.
+- Separate app version check and independently updateable canonical ExamLex-Lexicon SQLite database (signed SHA256 manifest verification).
+- Package version 0.1.1.0, signed x64 acceptance MSIX.
+
+# Changelog
 
 ## [0.1.0] - 2026-10-11
 

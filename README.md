@@ -1,9 +1,9 @@
 <h1 align="center">ExamLex</h1>
-<p align="center">面向 TOEFL、IELTS 与 TOEIC 的 Windows 原生英语词典与考试算分工具。</p>
+<p align="center">面向 TOEFL 与 IELTS 的 Windows 原生英语词典与考试算分工具。</p>
 <p align="center">
   <a href="https://github.com/KiYouJyo/ExamLex/actions/workflows/ci.yml"><img src="https://github.com/KiYouJyo/ExamLex/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/Windows-WinUI%203-0078D4" alt="WinUI 3">
-  <img src="https://img.shields.io/badge/Development-0.1.0-blue" alt="Version">
+  <img src="https://img.shields.io/badge/Development-0.1.1-blue" alt="Version">
   <img src="https://img.shields.io/badge/Dictionary-Empty-lightgrey" alt="Empty dictionary">
 </p>
 <p align="center">简体中文 · <a href="README.en-US.md">English</a> · <a href="README.ja-JP.md">日本語</a></p>
@@ -12,7 +12,7 @@
 
 ExamLex 是基于 **WinUI 3** 的本地优先桌面应用。主页布局参考开源项目 [Flint](https://github.com/sh0ckj0ckey/Flint) 的深色词典界面；本项目重新实现 UI 与业务代码，不复制原项目的词库、图标或专有品牌素材。
 
-**当前为 0.1.0 基础工程，不是可用的完整英语词典。** 首次启动创建空的 SQLite 词典，**不包含任何预装单词数据**，也不下载或解压 Flint/ECDICT 数据包。后续词库导入须另行实现并核实数据授权。
+**当前为 0.1.1 基础工程，不是可用的完整英语词典。** 首次启动创建空的 SQLite 词典，**不包含任何预装单词数据**，也不下载或解压 Flint/ECDICT 数据包。后续词库导入须另行实现并核实数据授权。
 
 ## 已有功能
 
@@ -20,8 +20,8 @@ ExamLex 是基于 **WinUI 3** 的本地优先桌面应用。主页布局参考�
 - **算分器入口**：主页底栏，**在生词本按钮左侧**（与需求截图红框位置一致）。
 - **新版 TOEFL iBT**（2026-01-21 起）：四科 1–6、0.5 步长，四科平均并取最近 0.5；显示 CEFR 与旧制总分**参考区间**。
 - **IELTS**：四科 0–9、0.5 步长，按官方 0.5 档进位。
-- **TOEIC Listening & Reading**：两科各 5–495、步长 5；相加得到 10–990 总分。
-- **空词库基础**：SQLite 词条结构预留音标、释义、英汉解释、例句、CEFR 及考试标签；用户收藏词条保存于本机 JSON。
+
+- **ExamLex-Lexicon 独立词库**：SQLite 词条结构预留音标、释义、英汉解释、例句、CEFR 及考试标签；用户收藏词条保存于本机 JSON。
 - **自动化测试**：独立于 WinUI 的计算核心与单元测试。
 
 > 算分器计算的是已获各科**标准分**的组合结果；不支持仅由答对题数推测正式分数。考试机构成绩报告为准；不同考试之间不作一对一的官方分数换算。
@@ -36,7 +36,7 @@ dotnet test tests/ExamLex.Core.Tests/ExamLex.Core.Tests.csproj -c Release
 msbuild src/ExamLex/ExamLex.csproj /restore /p:Configuration=Release /p:Platform=x64
 ```
 
-在 Visual Studio 打开 `ExamLex.slnx`，选择 **ExamLex** 为启动项目，使用 **x64** 运行。现已提供 [签名 MSIX 验收工作流](https://github.com/KiYouJyo/ExamLex/actions/workflows/msix-acceptance.yml)；在 Actions 的构建产物中下载 `ExamLex_0.1.0.0_x64.msix` 与公开证书。验收版不是 Microsoft Store 已审核发布包，安装说明见 [packaging/INSTALL.md](packaging/INSTALL.md)。
+在 Visual Studio 打开 `ExamLex.slnx`，选择 **ExamLex** 为启动项目，使用 **x64** 运行。现已提供 [签名 MSIX 验收工作流](https://github.com/KiYouJyo/ExamLex/actions/workflows/msix-acceptance.yml)；在 Actions 的构建产物中下载 `ExamLex_0.1.1.0_x64.msix` 与公开证书。验收版不是 Microsoft Store 已审核发布包，安装说明见 [packaging/INSTALL.md](packaging/INSTALL.md)。
 
 ## 项目结构
 

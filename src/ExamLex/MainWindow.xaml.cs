@@ -7,6 +7,9 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Windows.Media.Core;
+using Windows.Media.Playback;
+using Windows.Media.SpeechSynthesis;
 using Windows.UI;
 
 namespace ExamLex;
@@ -14,186 +17,240 @@ namespace ExamLex;
 public sealed partial class MainWindow : Window
 {
     private readonly DictionaryStore _dictionary;
+    private readonly AppSettings _preferences;
     private readonly string _glossaryPath;
     private readonly HashSet<string> _savedWords;
     private CancellationTokenSource? _searchCancellation;
+    private bool _sized;
+    private MediaPlayer? _speaker;
 
     public MainWindow()
     {
         InitializeComponent();
-        ExtendsContentIntoTitleBar = true;
+        ExtendsContentIntoTitleBar=true;
         SetTitleBar(TitleDragRegion);
-        AppWindow.Resize(new Windows.Graphics.SizeInt32(1120, 746));
-
-        _dictionary = new DictionaryStore();
-        _glossaryPath = Path.Combine(Path.GetDirectoryName(_dictionary.DatabasePath)!, "glossary.json");
-        _savedWords = ReadSavedWords();
+        _dictionary=new DictionaryStore();
+        _preferences=AppSettings.Load();
+        _glossaryPath=Path.Combine(_dictionary.DataDirectory,"glossary.json");
+        _savedWords=ReadSavedWords();
+        ApplyPreferences();
+        Activated+=OnWindowActivated;
     }
 
-    private async void OnSearchTextChanged(object sender, TextChangedEventArgs e)
+    private void OnWindowActivated(object sender,WindowActivatedEventArgs e)
+    {
+        if(_sized)return;
+        _sized=true;
+        // AppWindow.Resize uses physical pixels, unlike WinUI's effective pixels (DIPs).
+        // Honor per-monitor DPI rather than creating a huge 1120x746-DIP window.
+        double scale=Root.XamlRoot?.RasterizationScale ?? 1.0;
+        AppWindow.Resize(new Windows.Graphics.SizeInt32(
+            (int)Math.Round(800*scale),(int)Math.Round(560*scale)));
+    }
+
+    private void ApplyPreferences()
+    {
+        Root.RequestedTheme=_preferences.Appearance switch{
+            1=>ElementTheme.Dark,2=>ElementTheme.Light,_=>ElementTheme.Default
+        };
+        bool light = _preferences.Appearance==2 ||
+            (_preferences.Appearance==0 && (Application.Current.RequestedTheme==ApplicationTheme.Light));
+        Root.Background=new SolidColorBrush(light?
+            Color.FromArgb(255,247,249,249):Color.FromArgb(255,25,34,34));
+        SearchHost.Background=new SolidColorBrush(light?
+            Color.FromArgb(255,238,244,243):Color.FromArgb(255,38,49,48));
+        SearchHost.BorderBrush=new SolidColorBrush(light?
+            Color.FromArgb(255,211,222,219):Color.FromArgb(255,49,60,58));
+        Footer.Background=new SolidColorBrush(light?
+            Color.FromArgb(255,239,245,244):Color.FromArgb(255,27,38,37));
+        SearchHost.CornerRadius=new CornerRadius(_preferences.SearchStyle switch{1=>28,2=>3,_=>12});
+        SystemBackdrop=_preferences.Backdrop switch
+        {
+            1=>new MicaBackdrop(),
+            2=>new DesktopAcrylicBackdrop(),
+            _=>null
+        };
+        if(_preferences.Backdrop!=0)
+            Root.Background=new SolidColorBrush(Colors.Transparent);
+        if(_speaker is not null) _speaker.Volume=_preferences.TtsVolume/100d;
+        if(ContentFrame.Content is SettingsPage settingsPage)
+        {
+            // Settings page owns preference controls; no additional work required.
+        }
+    }
+
+    private void NavigateTo(Type type,string title)
+    {
+        SearchHost.Visibility=Visibility.Collapsed;
+        HomePanel.Visibility=Visibility.Collapsed;
+        ContentFrame.Visibility=Visibility.Visible;
+        BackButton.Visibility=Visibility.Visible;
+        HeaderTextBlock.Text=title;
+        HeaderTextBlock.FontFamily=new Microsoft.UI.Xaml.Media.FontFamily("Segoe UI");
+        HeaderTextBlock.FontSize=19;
+        ContentFrame.Navigate(type);
+        if(ContentFrame.Content is SettingsPage settings)
+            settings.Initialize(_preferences,_dictionary,ApplyPreferences,OnDictionaryChanged);
+    }
+    private void OnDictionaryChanged()
+    {
+        // On returning home, search again using the newly installed file.
+    }
+    private void ShowHome()
+    {
+        ContentFrame.Visibility=Visibility.Collapsed;
+        ContentFrame.Content=null;
+        HomePanel.Visibility=Visibility.Visible;
+        SearchHost.Visibility=Visibility.Visible;
+        BackButton.Visibility=Visibility.Collapsed;
+        HeaderTextBlock.Text="ExamLex";
+        HeaderTextBlock.FontFamily=new Microsoft.UI.Xaml.Media.FontFamily("Georgia");
+        HeaderTextBlock.FontSize=25;
+        if(_preferences.AutoClearSearch) SearchBox.Text="";
+        _ = RefreshSearchAsync(SearchBox.Text);
+    }
+    private void OnBackClicked(object sender,RoutedEventArgs e)=>ShowHome();
+
+    private void OnCalculatorClicked(object sender,RoutedEventArgs e)
+    {
+        if(ContentFrame.Content is ScoreCalculatorPage){ShowHome();return;}
+        NavigateTo(typeof(ScoreCalculatorPage),"算分器");
+    }
+    private void OnSettingsClicked(object sender,RoutedEventArgs e)
+    {
+        if(ContentFrame.Content is SettingsPage){ShowHome();return;}
+        NavigateTo(typeof(SettingsPage),"设置");
+    }
+    private void OnSearchTextChanged(object sender,TextChangedEventArgs e) =>
+        _ = RefreshSearchAsync(SearchBox.Text);
+    private async Task RefreshSearchAsync(string search)
     {
         _searchCancellation?.Cancel();
         _searchCancellation?.Dispose();
-        _searchCancellation = new CancellationTokenSource();
-        var cancellation = _searchCancellation.Token;
-
+        _searchCancellation=new CancellationTokenSource();
+        var ct=_searchCancellation.Token;
         try
         {
-            string query = SearchBox.Text.Trim();
-            if (query.Length == 0)
+            if(string.IsNullOrWhiteSpace(search))
             {
-                ShowEmpty("当前没有预装单词。词库已清空，等待后续导入。");
+                ShowEmpty(File.Exists(_dictionary.DatabasePath)?
+                    "输入英文单词以查询 ExamLex-Lexicon。":
+                    "还没有安装词库。可在设置 → 关于中检查 ExamLex-Lexicon 更新。");
                 return;
             }
-
-            await Task.Delay(180, cancellation);
-            var found = await _dictionary.SearchAsync(query, cancellation);
-            cancellation.ThrowIfCancellationRequested();
+            await Task.Delay(180,ct);
+            var results=await _dictionary.SearchAsync(search,ct);
+            ct.ThrowIfCancellationRequested();
             ResultsPanel.Children.Clear();
-            foreach (var entry in found)
+            foreach(var entry in results)
                 ResultsPanel.Children.Add(CreateEntryCard(entry));
-
-            if (found.Count == 0)
-                ShowEmpty("没有找到这个单词。当前词库为空，可以在后续版本导入考试词库。");
+            if(results.Count==0)ShowEmpty(File.Exists(_dictionary.DatabasePath)?
+                "当前词库中没有找到该单词。":"请先在设置中安装 ExamLex-Lexicon 词库。");
             else
             {
-                EmptyState.Visibility = Visibility.Collapsed;
-                ResultsScroll.Visibility = Visibility.Visible;
+                EmptyState.Visibility=Visibility.Collapsed;
+                ResultsScroll.Visibility=Visibility.Visible;
             }
         }
-        catch (OperationCanceledException) { /* Debounce: expected when input changes. */ }
-        catch (Exception ex) { ShowEmpty("查询失败：" + ex.Message); }
+        catch(OperationCanceledException) { }
+        catch(Exception ex){ShowEmpty("查询失败："+ex.Message);}
     }
-
     private void ShowEmpty(string message)
     {
-        EmptyDescription.Text = message;
-        EmptyState.Visibility = Visibility.Visible;
-        ResultsScroll.Visibility = Visibility.Collapsed;
+        EmptyDescription.Text=message;
+        EmptyState.Visibility=Visibility.Visible;
+        ResultsScroll.Visibility=Visibility.Collapsed;
         ResultsPanel.Children.Clear();
     }
-
     private UIElement CreateEntryCard(DictionaryEntry entry)
     {
-        var body = new StackPanel { Spacing = 8 };
-        var header = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 14 };
-        header.Children.Add(new TextBlock
-        {
-            Text = entry.Word, FontSize = 30, FontWeight = Microsoft.UI.Text.FontWeights.SemiBold,
-            Foreground = Brush(240, 245, 242)
+        var content=new StackPanel{Spacing=7};
+        var title=new StackPanel{Orientation=Orientation.Horizontal,Spacing=12};
+        title.Children.Add(new TextBlock{
+            Text=entry.Word,FontSize=26,
+            FontWeight=Microsoft.UI.Text.FontWeights.SemiBold
         });
-        if (!string.IsNullOrWhiteSpace(entry.Phonetic))
-            header.Children.Add(new TextBlock
-            {
-                Text = entry.Phonetic, FontSize = 18, VerticalAlignment = VerticalAlignment.Center,
-                Foreground = Brush(160, 178, 172)
+        if(!string.IsNullOrWhiteSpace(entry.Phonetic))
+            title.Children.Add(new TextBlock{
+                Text=entry.Phonetic,FontSize=16,Opacity=0.72,
+                VerticalAlignment=VerticalAlignment.Center
             });
-        body.Children.Add(header);
-
-        AddOptional(body, entry.Translation, 20);
-        AddOptional(body, entry.Definition, 17);
-        if (!string.IsNullOrWhiteSpace(entry.Cefr))
-            AddOptional(body, "CEFR · " + entry.Cefr, 15);
-        if (entry.ExamTags.Count > 0)
-            AddOptional(body, "Exam · " + string.Join(" · ", entry.ExamTags), 15);
-        if (entry.Examples.Count > 0)
+        content.Children.Add(title);
+        AddText(content,entry.Translation,18);
+        if(_preferences.ShowEnglishDefinition)AddText(content,entry.Definition,15);
+        if(!string.IsNullOrWhiteSpace(entry.Cefr))AddText(content,"CEFR · "+entry.Cefr,14);
+        if(entry.ExamTags.Count>0)AddText(content,"Exam · "+string.Join(" · ",entry.ExamTags),14);
+        if(entry.Examples.Count>0)
         {
-            AddOptional(body, "例句", 15);
-            foreach (string sentence in entry.Examples)
-                AddOptional(body, sentence, 17);
+            AddText(content,"例句",13);
+            foreach(var sentence in entry.Examples)AddText(content,sentence,15);
         }
-
-        var addButton = new Button { Content = "加入生词本", HorizontalAlignment = HorizontalAlignment.Right };
-        addButton.Click += (_, _) =>
+        var controls=new StackPanel{Orientation=Orientation.Horizontal,Spacing=8,
+            HorizontalAlignment=HorizontalAlignment.Right};
+        if(_preferences.EnableTts)
         {
-            _savedWords.Add(entry.Word);
-            SaveSavedWords();
-            addButton.Content = "已收藏";
+            var speak=new Button{Content="朗读"};
+            speak.Click+=async (_,_)=>await SpeakAsync(entry.Word);
+            controls.Children.Add(speak);
+        }
+        if(_preferences.EnableGlossary)
+        {
+            var save=new Button{Content=_savedWords.Contains(entry.Word)?"已收藏":"加入生词本"};
+            save.Click+=(_,_)=>{
+                _savedWords.Add(entry.Word);SaveSavedWords();save.Content="已收藏";
+            };
+            controls.Children.Add(save);
+        }
+        content.Children.Add(controls);
+        return new Border{
+            Background=new SolidColorBrush(Root.RequestedTheme==ElementTheme.Light?
+                Color.FromArgb(255,234,242,240):Color.FromArgb(255,37,47,46)),
+            CornerRadius=new CornerRadius(10),Padding=new Thickness(20),
+            Child=content
         };
-        body.Children.Add(addButton);
-
-        return new Border
-        {
-            Background = Brush(37, 47, 46),
-            CornerRadius = new CornerRadius(10),
-            Padding = new Thickness(22, 18, 22, 14),
-            Child = body
-        };
     }
-
-    private static SolidColorBrush Brush(byte r, byte g, byte b)
-        => new(Color.FromArgb(255, r, g, b));
-
-    private static void AddOptional(StackPanel body, string? value, double fontSize)
+    private static void AddText(StackPanel panel,string? text,double size)
     {
-        if (string.IsNullOrWhiteSpace(value)) return;
-        body.Children.Add(new TextBlock
-        {
-            Text = value, TextWrapping = TextWrapping.Wrap, FontSize = fontSize,
-            Foreground = Brush(197, 207, 203)
-        });
+        if(string.IsNullOrWhiteSpace(text))return;
+        panel.Children.Add(new TextBlock{Text=text,FontSize=size,Opacity=0.85,TextWrapping=TextWrapping.Wrap});
     }
-
-    private async void OnCalculatorClicked(object sender, RoutedEventArgs e)
-    {
-        var dialog = new ScoreCalculatorDialog { XamlRoot = Root.XamlRoot };
-        await dialog.ShowAsync();
-    }
-
-    private async void OnGlossaryClicked(object sender, RoutedEventArgs e)
-    {
-        string words = _savedWords.Count == 0
-            ? "生词本还是空的。后续导入词库后，可以在词条中收藏单词。"
-            : string.Join("\n", _savedWords.OrderBy(w => w, StringComparer.OrdinalIgnoreCase));
-        await new ContentDialog
-        {
-            XamlRoot = Root.XamlRoot, Title = "ExamLex · 生词本",
-            Content = new ScrollViewer
-            {
-                MaxHeight = 400,
-                Content = new TextBlock { Text = words, TextWrapping = TextWrapping.Wrap }
-            },
-            CloseButtonText = "关闭"
-        }.ShowAsync();
-    }
-
-    private async void OnSettingsClicked(object sender, RoutedEventArgs e)
-    {
-        await new ContentDialog
-        {
-            XamlRoot = Root.XamlRoot, Title = "ExamLex · 设置",
-            Content = new TextBlock
-            {
-                Text = "版本 0.1.0 · Windows WinUI 3\n" +
-                       "词库初始为空，不包含 Flint / ECDICT 预装数据。\n" +
-                       "本地目录：" + Path.GetDirectoryName(_dictionary.DatabasePath),
-                TextWrapping = TextWrapping.Wrap
-            },
-            CloseButtonText = "关闭"
-        }.ShowAsync();
-    }
-
-    private void OnPinClicked(object sender, RoutedEventArgs e)
-    {
-        if (AppWindow.Presenter is OverlappedPresenter presenter)
-            presenter.IsAlwaysOnTop = PinToggle.IsChecked == true;
-    }
-
-    private HashSet<string> ReadSavedWords()
+    private async Task SpeakAsync(string word)
     {
         try
         {
-            return new HashSet<string>(
-                JsonSerializer.Deserialize<List<string>>(File.ReadAllText(_glossaryPath)) ?? [],
-                StringComparer.OrdinalIgnoreCase);
+            using var synth=new SpeechSynthesizer();
+            var speech=await synth.SynthesizeTextToStreamAsync(word);
+            _speaker ??= new MediaPlayer();
+            _speaker.Volume=_preferences.TtsVolume/100d;
+            _speaker.Source=MediaSource.CreateFromStream(speech,speech.ContentType);
+            _speaker.Play();
         }
-        catch (IOException) { return new(StringComparer.OrdinalIgnoreCase); }
-        catch (JsonException) { return new(StringComparer.OrdinalIgnoreCase); }
+        catch(Exception ex){ShowEmpty("朗读失败："+ex.Message);}
     }
-
-    private void SaveSavedWords()
+    private async void OnGlossaryClicked(object sender,RoutedEventArgs e)
     {
-        File.WriteAllText(_glossaryPath,
-            JsonSerializer.Serialize(_savedWords.OrderBy(w => w, StringComparer.OrdinalIgnoreCase)));
+        var words=_savedWords.Count==0?
+            "生词本还是空的。先安装词库并添加收藏。":
+            string.Join("\n",_savedWords.OrderBy(x=>x,StringComparer.OrdinalIgnoreCase));
+        await new ContentDialog{
+            XamlRoot=Root.XamlRoot,Title="ExamLex · 生词本",
+            Content=new ScrollViewer{MaxHeight=360,Content=new TextBlock{Text=words,TextWrapping=TextWrapping.Wrap}},
+            CloseButtonText="返回"
+        }.ShowAsync();
     }
+    private void OnPinClicked(object sender,RoutedEventArgs e)
+    {
+        if(AppWindow.Presenter is OverlappedPresenter presenter)
+            presenter.IsAlwaysOnTop=PinToggle.IsChecked==true;
+    }
+    private HashSet<string> ReadSavedWords()
+    {
+        try{return new HashSet<string>(JsonSerializer.Deserialize<List<string>>(
+            File.ReadAllText(_glossaryPath))??[],StringComparer.OrdinalIgnoreCase);}
+        catch(Exception ex) when(ex is IOException or JsonException)
+        {return new HashSet<string>(StringComparer.OrdinalIgnoreCase);}
+    }
+    private void SaveSavedWords() =>
+        File.WriteAllText(_glossaryPath,JsonSerializer.Serialize(_savedWords.OrderBy(
+            x=>x,StringComparer.OrdinalIgnoreCase)));
 }

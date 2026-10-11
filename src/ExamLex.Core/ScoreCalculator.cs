@@ -1,6 +1,6 @@
 namespace ExamLex.Core;
 
-public enum ExamKind { Toefl2026, Ielts, ToeicListeningReading }
+public enum ExamKind { Toefl2026, Ielts }
 
 public sealed record ScoreResult(
     ExamKind Exam,
@@ -22,7 +22,7 @@ public static class ScoreCalculator
     public static ScoreResult Calculate(ExamKind exam, IReadOnlyList<decimal> sections)
     {
         ArgumentNullException.ThrowIfNull(sections);
-        int expected = exam == ExamKind.ToeicListeningReading ? 2 : 4;
+        int expected = 4;
         if (sections.Count != expected)
             throw new ArgumentException($"Expected {expected} section scores.", nameof(sections));
 
@@ -48,10 +48,6 @@ public static class ScoreCalculator
                 return new(ExamKind.Ielts, RoundHalf(sections.Average()), "0–9",
                     Comparison: "四科平均分按 0.5 分档四舍五入；.25 / .75 向上进位。");
 
-            case ExamKind.ToeicListeningReading:
-                CheckSections(sections, 5m, 495m, 5m);
-                return new(ExamKind.ToeicListeningReading, sections.Sum(), "10–990",
-                    Comparison: "TOEIC L&R 两科各 5–495 分，总分相加；不由总分直接推断 CEFR。");
 
             default:
                 throw new ArgumentOutOfRangeException(nameof(exam));

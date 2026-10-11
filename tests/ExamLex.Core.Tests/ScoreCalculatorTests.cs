@@ -30,13 +30,9 @@ public class ScoreCalculatorTests
         Assert.Equal(6m, ScoreCalculator.Calculate(ExamKind.Ielts, 6.5m, 6.5m, 5.5m, 6m).Overall);
 
     [Fact]
-    public void Toeic_AddsBothSections() =>
-        Assert.Equal(740m, ScoreCalculator.Calculate(ExamKind.ToeicListeningReading, 380m, 360m).Overall);
-
-    [Fact]
-    public void RejectsWrongIncrement() =>
+    public void Ielts_RejectsWrongIncrement() =>
         Assert.Throws<ArgumentOutOfRangeException>(
-            () => ScoreCalculator.Calculate(ExamKind.ToeicListeningReading, 381m, 360m));
+            () => ScoreCalculator.Calculate(ExamKind.Ielts, 6.1m, 6m, 6m, 6m));
 
     [Fact]
     public void RejectsWrongNumberOfSections() =>
