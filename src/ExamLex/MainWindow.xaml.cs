@@ -55,8 +55,8 @@ public sealed partial class MainWindow : Window
 
         var display = DisplayArea.GetFromWindowId(AppWindow.Id, DisplayAreaFallback.Nearest);
         var work = display.WorkArea;
-        int width = Math.Min((int)Math.Round(840 * scale), Math.Max(440, work.Width - 32));
-        int height = Math.Min((int)Math.Round(620 * scale), Math.Max(340, work.Height - 32));
+        int width = Math.Min((int)Math.Round(660 * scale), Math.Max(440, work.Width - 32));
+        int height = Math.Min((int)Math.Round(470 * scale), Math.Max(340, work.Height - 32));
         int x = work.X + Math.Max(0, (work.Width - width) / 2);
         int y = work.Y + Math.Max(0, (work.Height - height) / 2);
         AppWindow.MoveAndResize(new Windows.Graphics.RectInt32(x, y, width, height));
@@ -70,14 +70,14 @@ public sealed partial class MainWindow : Window
         bool light = _preferences.Appearance==2 ||
             (_preferences.Appearance==0 && (Application.Current.RequestedTheme==ApplicationTheme.Light));
         Root.Background=new SolidColorBrush(light?
-            Color.FromArgb(255,247,249,249):Color.FromArgb(255,25,34,34));
+            Color.FromArgb(255,247,249,249):Color.FromArgb(255,30,30,30));
         SearchHost.Background=new SolidColorBrush(light?
-            Color.FromArgb(255,238,244,243):Color.FromArgb(255,38,49,48));
+            Color.FromArgb(255,238,244,243):Color.FromArgb(255,37,37,37));
         SearchHost.BorderBrush=new SolidColorBrush(light?
-            Color.FromArgb(255,211,222,219):Color.FromArgb(255,49,60,58));
+            Color.FromArgb(255,211,222,219):Color.FromArgb(255,59,59,59));
         Footer.Background=new SolidColorBrush(light?
-            Color.FromArgb(255,239,245,244):Color.FromArgb(255,27,38,37));
-        SearchHost.CornerRadius=new CornerRadius(_preferences.SearchStyle switch{1=>28,2=>3,_=>12});
+            Color.FromArgb(255,239,245,244):Color.FromArgb(255,31,31,31));
+        SearchHost.CornerRadius=new CornerRadius(_preferences.SearchStyle switch{1=>18,2=>2,_=>6});
         SystemBackdrop=_preferences.Backdrop switch
         {
             1=>new MicaBackdrop(),
@@ -100,10 +100,13 @@ public sealed partial class MainWindow : Window
         Footer.Visibility=Visibility.Collapsed;
         ContentFrame.Visibility=Visibility.Visible;
         BackButton.Visibility=Visibility.Visible;
-        HeaderTextBlock.Text=title;
-        HeaderTextBlock.FontFamily=new Microsoft.UI.Xaml.Media.FontFamily("Segoe UI");
-        HeaderTextBlock.FontSize=19;
-        HeaderTextBlock.Margin=new Thickness(4,0,0,0);
+        HeaderTextBlock.Text=type==typeof(SettingsPage)?"Settings":title;
+        HeaderTextBlock.FontFamily=new Microsoft.UI.Xaml.Media.FontFamily(
+            type==typeof(SettingsPage)?"Times New Roman":"Segoe UI");
+        HeaderTextBlock.FontSize=20;
+        HeaderTextBlock.Margin=new Thickness(20,0,0,4);
+        HeaderTextBlock.VerticalAlignment=VerticalAlignment.Bottom;
+        BackButton.Visibility=type==typeof(SettingsPage)?Visibility.Collapsed:Visibility.Visible;
         ContentFrame.Navigate(type);
         if(ContentFrame.Content is SettingsPage settings)
             settings.Initialize(_preferences,_dictionary,ApplyPreferences,OnDictionaryChanged,ShowHome);
@@ -121,9 +124,9 @@ public sealed partial class MainWindow : Window
         SearchHost.Visibility=Visibility.Visible;
         BackButton.Visibility=Visibility.Collapsed;
         HeaderTextBlock.Text="ExamLex";
-        HeaderTextBlock.FontFamily=new Microsoft.UI.Xaml.Media.FontFamily("Georgia");
-        HeaderTextBlock.FontSize=23;
-        HeaderTextBlock.Margin=new Thickness(27,0,0,0);
+        HeaderTextBlock.FontFamily=new Microsoft.UI.Xaml.Media.FontFamily("Times New Roman");
+        HeaderTextBlock.FontSize=20;
+        HeaderTextBlock.Margin=new Thickness(20,0,0,4);
         if(_preferences.AutoClearSearch) SearchBox.Text="";
         _ = RefreshSearchAsync(SearchBox.Text);
     }

@@ -14,7 +14,12 @@ public sealed partial class SettingsPage : Page
     private Action? _dictionaryChanged;
     private bool _ready;
     private Action? _backHome;
-    public SettingsPage() => InitializeComponent();
+    public SettingsPage()
+    {
+        InitializeComponent();
+        Loaded += (_, _) => DispatcherQueue.TryEnqueue(() =>
+            SettingsScroll.ChangeView(null, 0, null, true));
+    }
 
     public void Initialize(AppSettings settings, DictionaryStore store, Action applySettings,
         Action dictionaryChanged, Action backHome)
