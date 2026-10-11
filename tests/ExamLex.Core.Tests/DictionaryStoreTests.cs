@@ -21,7 +21,8 @@ public sealed class DictionaryStoreTests
                 using var cmd = conn.CreateCommand();
                 cmd.CommandText = """
                     CREATE TABLE entries (id INTEGER PRIMARY KEY, headword TEXT,
-                        normalized_headword TEXT, language TEXT, cefr_level TEXT);
+                        normalized_headword TEXT, language TEXT, cefr_level TEXT,
+                        homograph_number INTEGER DEFAULT 1);
                     CREATE TABLE pronunciations (entry_id INTEGER, id INTEGER PRIMARY KEY,
                         ipa TEXT, accent TEXT, part_of_speech TEXT);
                     CREATE TABLE inflections (entry_id INTEGER, id INTEGER PRIMARY KEY,
@@ -40,7 +41,8 @@ public sealed class DictionaryStoreTests
                     CREATE TABLE example_translations (id INTEGER PRIMARY KEY,
                         example_id INTEGER, language TEXT, text TEXT);
                     CREATE TABLE exam_tags (entry_id INTEGER, exam TEXT);
-                    INSERT INTO entries VALUES (1, 'about', 'about', 'en', 'A1');
+                    INSERT INTO entries(id, headword, normalized_headword, language, cefr_level)
+                        VALUES (1, 'about', 'about', 'en', 'A1');
                     INSERT INTO pronunciations VALUES (1, 1, '/əˈbaʊt/', 'en-GB', 'prep');
                     INSERT INTO inflections VALUES (1, 1, 'prep', 'test', 'about');
                     INSERT INTO senses VALUES (1,1,'prep',1,'Concerning; regarding.');
@@ -76,13 +78,13 @@ public sealed class DictionaryStoreTests
             Assert.Single(word.Inflections);
             Assert.Equal("TOEFL", Assert.Single(word.ExamTags));
 
-            var prep = Assert.Single(word.Senses.Where(x => x.Id == 1));
-            Assert.Equal("关于", Assert.Single(prep.Translations.Where(x => x.Language == "zh")).Text);
-            Assert.Equal("～について", Assert.Single(prep.Translations.Where(x => x.Language == "ja")).Text);
+            var prep = Assert.Single(word.Senses, x => x.Id == 1);
+            Assert.Equal("关于", Assert.Single(prep.Translations, x => x.Language == "zh").Text);
+            Assert.Equal("～について", Assert.Single(prep.Translations, x => x.Language == "ja").Text);
             Assert.Equal("valency", Assert.Single(prep.Expressions).Type);
             Assert.Empty(prep.Examples);
 
-            var adv = Assert.Single(word.Senses.Where(x => x.Id == 2));
+            var adv = Assert.Single(word.Senses, x => x.Id == 2);
             Assert.Equal("大约", Assert.Single(adv.Translations).Text);
             Assert.Equal("approximately", Assert.Single(adv.Relations).RelatedWord);
             Assert.Equal("collocation", Assert.Single(adv.Expressions).Type);
