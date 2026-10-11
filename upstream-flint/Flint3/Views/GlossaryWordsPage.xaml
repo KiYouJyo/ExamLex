@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Page
+    x:Class="Flint3.Views.GlossaryWordsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Flint3.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls" 
+    xmlns:animatedvisuals="using:Microsoft.UI.Xaml.Controls.AnimatedVisuals"
+    xmlns:cvt="using:Flint3.Converters" 
+    xmlns:mdl="using:Flint3.Data.Models" 
+    xmlns:models="using:Flint3.Models" 
+    xmlns:media="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    mc:Ignorable="d" Background="Transparent" NavigationCacheMode="Required"
+    Loaded="OnLoaded">
+
+    <Page.Resources>
+        <cvt:Int2VisibilityConverter x:Key="Int2Vis"/>
+        <cvt:Equal2VisibilityConverter x:Key="Eql2Vis"/>
+        <cvt:Unequal2VisibilityConverter x:Key="UnEql2Vis"/>
+        <cvt:LineBreaksRemover x:Key="LinebreakRemove"/>
+        <cvt:Bool2VisibilityConverter x:Key="Bool2Vis"/>
+        <cvt:NullOrEmpty2VisibilityConverter x:Key="Null2Vis"/>
+        <cvt:IsExpanded2OpacityConverter x:Key="Bool2Opacity"/>
+        <cvt:GlossaryEnum2ColorConverter x:Key="Enum2Color"/>
+        <cvt:GlossaryEnum2NameConverter x:Key="Enum2Name"/>
+        <cvt:BoolReverseConverter x:Key="BoolReverse"/>
+        <cvt:Equal2BoolConverter x:Key="Eql2Bool"/>
+        <cvt:Unequal2BoolConverter x:Key="UnEql2Bool"/>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="38"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!--标题-->
+        <Grid Grid.Row="0" Background="Transparent">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Glossary" FontFamily="Times New Roman" Margin="20,0,0,4" FontWeight="Bold" FontSize="20" VerticalAlignment="Bottom" Opacity="0.7"/>
+            <FontIcon Grid.Column="1" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE00F;" HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="14" FontWeight="Bold" Opacity="0.5" Margin="4,0,4,8"/>
+            <TextBlock Grid.Column="2" Margin="0,0,120,5" Text="{x:Bind ViewModel.SelectedGlossary.GlossaryTitle,Mode=OneWay}" FontSize="16" FontWeight="Bold" Opacity="0.9" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+        </Grid>
+
+        <!--过滤生词-->
+        <Grid Grid.Row="1" Padding="16,8,16,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!--按照颜色过滤-->
+            <Button Grid.Column="0" CornerRadius="4" Margin="1,0,0,0" Padding="12,0,12,0" Height="30" MinWidth="64" VerticalAlignment="Center"
+                    Visibility="{x:Bind ViewModel.SelectedGlossary.IsReadOnly,Mode=OneWay,Converter={StaticResource Bool2Vis},ConverterParameter=-}">
+                <ToolTipService.ToolTip>
+                    <ToolTip>
+                        <TextBlock>
+                            <Run Text="color" FontWeight="Bold"/>
+                            <Run Text="/ˈkʌl.ər/"/>
+                            <Run Text="noun" FontStyle="Italic" FontWeight="Medium"/>
+                            <Run Text="颜色"/>
+                        </TextBlock>
+                    </ToolTip>
+                </ToolTipService.ToolTip>
+                <Button.Flyout>
+                    <Flyout x:Name="ColorFilterFlyout" Placement="Bottom">
+                        <StackPanel Orientation="Vertical" Spacing="8">
+                            <TextBlock Text="按颜色筛选" FontSize="14" FontWeight="Bold"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Height="34" Width="34" Padding="0" CornerRadius="17" Tag="0" Click="OnClickFilterColor">
+                                    <Border Height="22" Width="22" CornerRadius="17" Background="Transparent" BorderBrush="{ThemeResource APPLICATION_NORMAL_FR}" BorderThickness="2" ToolTipService.ToolTip="全部">
+                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE001;" FontSize="12" Foreground="{ThemeResource APPLICATION_NORMAL_FR}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Visibility="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource Eql2Vis},ConverterParameter=Transparent}"/>
+                                    </Border>
+                                </Button>
+                                <Button Height="34" Width="34" Padding="0" CornerRadius="17" Tag="1" Click="OnClickFilterColor">
+                                    <Border Height="22" Width="22" CornerRadius="17" Background="Firebrick" ToolTipService.ToolTip="红色">
+                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE001;" FontSize="12" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Visibility="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource Eql2Vis},ConverterParameter=Red}"/>
+                                    </Border>
+                                </Button>
+                                <Button Height="34" Width="34" Padding="0" CornerRadius="17" Tag="2" Click="OnClickFilterColor">
+                                    <Border Height="22" Width="22" CornerRadius="17" Background="Tomato" ToolTipService.ToolTip="橙色">
+                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE001;" FontSize="12" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Visibility="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource Eql2Vis},ConverterParameter=Orange}"/>
+                                    </Border>
+                                </Button>
+                                <Button Height="34" Width="34" Padding="0" CornerRadius="17" Tag="3" Click="OnClickFilterColor">
+                                    <Border Height="22" Width="22" CornerRadius="17" Background="Gold" ToolTipService.ToolTip="黄色">
+                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE001;" FontSize="12" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Visibility="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource Eql2Vis},ConverterParameter=Yellow}"/>
+                                    </Border>
+                                </Button>
+                                <Button Height="34" Width="34" Padding="0" CornerRadius="17" Tag="4" Click="OnClickFilterColor">
+                                    <Border Height="22" Width="22" CornerRadius="17" Background="ForestGreen" ToolTipService.ToolTip="绿色">
+                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE001;" FontSize="12" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Visibility="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource Eql2Vis},ConverterParameter=Green}"/>
+                                    </Border>
+                                </Button>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <Button Height="34" Width="34" Padding="0" CornerRadius="17" Tag="5" Click="OnClickFilterColor">
+                                    <Border Height="22" Width="22" CornerRadius="17" Background="DodgerBlue" ToolTipService.ToolTip="蓝色">
+                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE001;" FontSize="12" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Visibility="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource Eql2Vis},ConverterParameter=Blue}"/>
+                                    </Border>
+                                </Button>
+                                <Button Height="34" Width="34" Padding="0" CornerRadius="17" Tag="6" Click="OnClickFilterColor">
+                                    <Border Height="22" Width="22" CornerRadius="17" Background="Orchid" ToolTipService.ToolTip="紫色">
+                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE001;" FontSize="12" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Visibility="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource Eql2Vis},ConverterParameter=Purple}"/>
+                                    </Border>
+                                </Button>
+                                <Button Height="34" Width="34" Padding="0" CornerRadius="17" Tag="7" Click="OnClickFilterColor">
+                                    <Border Height="22" Width="22" CornerRadius="17" Background="DeepPink" ToolTipService.ToolTip="粉色">
+                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE001;" FontSize="12" Foreground="Black" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Visibility="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource Eql2Vis},ConverterParameter=Pink}"/>
+                                    </Border>
+                                </Button>
+                                <Button Height="34" Width="34" Padding="0" CornerRadius="17" Tag="8" Click="OnClickFilterColor">
+                                    <Border Height="22" Width="22" CornerRadius="17" Background="Sienna" ToolTipService.ToolTip="棕色">
+                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE001;" FontSize="12" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Visibility="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource Eql2Vis},ConverterParameter=Brown}"/>
+                                    </Border>
+                                </Button>
+                                <Button Height="34" Width="34" Padding="0" CornerRadius="17" Tag="9" Click="OnClickFilterColor">
+                                    <Border Height="22" Width="22" CornerRadius="17" Background="Gray" ToolTipService.ToolTip="灰色">
+                                        <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE001;" FontSize="12" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                  Visibility="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource Eql2Vis},ConverterParameter=Gray}"/>
+                                    </Border>
+                                </Button>
+                            </StackPanel>
+                        </StackPanel>
+                    </Flyout>
+                </Button.Flyout>
+                <StackPanel Orientation="Horizontal">
+                    <Border Height="10" Width="10" CornerRadius="6" Background="Transparent" BorderBrush="{ThemeResource APPLICATION_NORMAL_FR}" BorderThickness="1" VerticalAlignment="Center" Opacity="0.7"
+                            Visibility="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource Eql2Vis},ConverterParameter=Transparent}"/>
+                    <Border Height="10" Width="10" CornerRadius="6" Background="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource Enum2Color}}" VerticalAlignment="Center"
+                            Visibility="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource UnEql2Vis},ConverterParameter=Transparent}"/>
+                    <TextBlock Text="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource Enum2Name}}" FontSize="14" Opacity="0.9" Margin="6,0,0,0" VerticalAlignment="Center"/>
+
+                    <AnimatedIcon Height="14" Width="14" Margin="4,0,0,0" Opacity="0.7">
+                        <AnimatedIcon.Source>
+                            <animatedvisuals:AnimatedChevronDownSmallVisualSource/>
+                        </AnimatedIcon.Source>
+                        <AnimatedIcon.FallbackIconSource>
+                            <FontIconSource Glyph="&#xE011;" FontFamily="{ThemeResource SymbolThemeFontFamily}"/>
+                        </AnimatedIcon.FallbackIconSource>
+                    </AnimatedIcon>
+                </StackPanel>
+            </Button>
+
+            <!--查找生词-->
+            <Grid Grid.Column="4" VerticalAlignment="Center" Margin="0,0,1,0">
+                <TextBox x:Name="FilterWordTextBox" Width="196" PlaceholderText="查找生词" FontSize="14" FontWeight="Medium" Padding="30,8,4,2" Height="34" MinHeight="0" BorderBrush="Transparent" BorderThickness="0" VerticalAlignment="Center">
+                    <ToolTipService.ToolTip>
+                        <ToolTip>
+                            <TextBlock>
+                                <Run Text="filter" FontWeight="Bold"/>
+                                <Run Text="/ˈfɪl.tər/"/>
+                                <Run Text="verb" FontStyle="Italic" FontWeight="Medium"/>
+                                <Run Text="过滤"/>
+                            </TextBlock>
+                        </ToolTip> 
+                    </ToolTipService.ToolTip>
+                </TextBox>
+                <FontIcon FontFamily="{ThemeResource SymbolThemeFontFamily}" Glyph="&#xE094;" Opacity="0.7" FontSize="14" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" IsHitTestVisible="False"/>
+            </Grid>
+        </Grid>
+
+        <!--Loading-->
+        <ProgressRing Grid.Row="2" IsActive="{x:Bind ViewModel.LoadedGlossaryWords,Mode=OneWay,Converter={StaticResource BoolReverse}}"
+                      Visibility="{x:Bind ViewModel.LoadedGlossaryWords,Mode=OneWay,Converter={StaticResource Bool2Vis},ConverterParameter=-}"
+                      Height="34" Width="34" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <Grid Grid.Row="2" Visibility="{x:Bind ViewModel.LoadedGlossaryWords,Mode=OneWay,Converter={StaticResource Bool2Vis}}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+            <!--空白占位-->
+            <StackPanel Spacing="12" HorizontalAlignment="Stretch" VerticalAlignment="Center" Orientation="Vertical"
+                        Visibility="{x:Bind ViewModel.GlossaryWordItems.Count,Mode=OneWay,Converter={StaticResource Int2Vis},ConverterParameter=-}">
+                <Image Source="/Assets/Logos/flint_logo.png" Height="72" Width="72" Opacity="0.2" HorizontalAlignment="Center"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="没有找到" FontSize="13" Opacity="0.3"/>
+                    <TextBlock Text="{x:Bind ViewModel.FilterGlossaryWord,Mode=OneWay}" Margin="2,0,0,0" FontSize="13" Opacity="0.4"
+                               Visibility="{x:Bind ViewModel.FilterGlossaryWord,Mode=OneWay,Converter={StaticResource Null2Vis}}"/>
+                    <TextBlock Text="开头的" Margin="2,0,0,0" FontSize="13" Opacity="0.3"
+                               Visibility="{x:Bind ViewModel.FilterGlossaryWord,Mode=OneWay,Converter={StaticResource Null2Vis}}"/>
+                    <TextBlock Text="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource Enum2Name}}" Margin="0,0,0,0" FontSize="13" Opacity="0.5"
+                               Foreground="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource Enum2Color}}"
+                               Visibility="{x:Bind ViewModel.FilterGlossaryColor,Mode=OneWay,Converter={StaticResource UnEql2Vis},ConverterParameter=Transparent}"/>
+                    <TextBlock Text="生词" FontSize="13" Opacity="0.3"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!--生词列表-->
+            <ListView x:Name="GlossaryWordsListView" ItemsSource="{x:Bind ViewModel.GlossaryWordItems,Mode=OneWay}" HorizontalContentAlignment="Stretch" Padding="0,0,4,8"
+                      HorizontalAlignment="Stretch" IsSwipeEnabled="False" SelectionMode="None" IsItemClickEnabled="False">
+                <ListView.ItemContainerTransitions>
+                    <TransitionCollection/>
+                </ListView.ItemContainerTransitions>
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="mdl:StarDictWordItem">
+                        <Button DataContext="{x:Bind }" MinHeight="48" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" Padding="0" Margin="0,2" Click="OnClickGlossaryWord">
+                            <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="Transparent" Padding="20,4,10,4">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Orientation="Vertical" Margin="0,8,0,8" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+                                    <Grid HorizontalAlignment="Stretch" Visibility="{Binding IsChecked,ElementName=HideWordToggleMenuItem,Mode=OneWay,Converter={StaticResource Bool2Vis},ConverterParameter=-}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Text="{x:Bind Word}" FontSize="18" FontWeight="SemiBold" VerticalAlignment="Center" IsTextSelectionEnabled="True"/>
+                                        <TextBlock Grid.Column="1" Margin="8,0,0,0" FontSize="16" Opacity="0.5" FontWeight="Light" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                   Visibility="{x:Bind Phonetic,Converter={StaticResource Null2Vis}}" IsTextSelectionEnabled="True" TextTrimming="CharacterEllipsis">
+                                            <Run Text="/" FontSize="14"/>
+                                            <Run Text="{x:Bind Phonetic}"/>
+                                            <Run Text="/" FontSize="14"/>
+                                        </TextBlock>
+                                    </Grid>
+                                    <TextBlock Text="{x:Bind Translation,Converter={StaticResource LinebreakRemove}}" 
+                                               Visibility="{Binding IsChecked,ElementName=HideExplainToggleMenuItem,Mode=OneWay,Converter={StaticResource Bool2Vis},ConverterParameter=-}"
+                                               Margin="0,2,0,0" Opacity="0.8" FontSize="13" MaxLines="2" LineHeight="20" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
+                                    <Grid Margin="0,2,0,0" HorizontalAlignment="Stretch" Opacity="0.6" Visibility="{x:Bind Description,Mode=OneWay,Converter={StaticResource Null2Vis}}">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="&#xEDC6;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="12" Margin="0,2,0,-2"/>
+                                        <TextBlock Grid.Column="1" Text="{x:Bind Description,Mode=OneWay}" FontSize="13" Margin="6,-2,0,2" TextTrimming="CharacterEllipsis"/>
+                                    </Grid>
+                                </StackPanel>
+                                <Border Grid.Column="1" Height="12" Width="12" CornerRadius="6" Background="{x:Bind Color,Mode=OneWay,Converter={StaticResource Enum2Color}}" Margin="12,0,24,0" VerticalAlignment="Center"/>
+                                <FontIcon Grid.Column="2" Glyph="&#xE00F;" FontFamily="{ThemeResource SymbolThemeFontFamily}" FontSize="16" Opacity="0.7" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                            </Grid>
+                        </Button>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
+
+        <!--工具栏-->
+        <Grid Grid.Row="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="8"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle Grid.ColumnSpan="7" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Fill="{ThemeResource ControlElevationBorderBrush}"/>
+
+            <!--返回-->
+            <Button Grid.Column="0" Margin="8,8,0,8" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Center" Click="OnClickBackButton">
+                <ToolTipService.ToolTip>
+                    <ToolTip>
+                        <TextBlock>
+                           <Run Text="back" FontWeight="Bold"/>
+                           <Run Text="/bæk/"/>
+                           <Run Text="adverb" FontStyle="Italic" FontWeight="Medium"/>
+                           <Run Text="返回"/>
+                        </TextBlock>
+                    </ToolTip>
+                </ToolTipService.ToolTip>
+                <muxc:AnimatedIcon Height="22" Width="22" Opacity="0.8">
+                    <muxc:AnimatedIcon.Source>
+                        <animatedvisuals:AnimatedBackVisualSource/>
+                    </muxc:AnimatedIcon.Source>
+                    <muxc:AnimatedIcon.FallbackIconSource>
+                        <muxc:SymbolIconSource Symbol="Back"/>
+                    </muxc:AnimatedIcon.FallbackIconSource>
+                </muxc:AnimatedIcon>
+            </Button>
+            
+            <!--首页-->
+            <Button Grid.Column="1" Margin="4,8,0,8" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Center" Click="OnClickBackHomeButton">
+                <ToolTipService.ToolTip>
+                    <ToolTip>
+                        <TextBlock>
+                           <Run Text="home page" FontWeight="Bold"/>
+                           <Run Text="/ˈhəʊm ˌpeɪdʒ/"/>
+                           <Run Text="noun" FontStyle="Italic" FontWeight="Medium"/>
+                           <Run Text="首页"/>
+                        </TextBlock>
+                    </ToolTip>
+                </ToolTipService.ToolTip>
+                <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE80F;" FontSize="16" Height="22" Width="22" Opacity="0.8"/>
+            </Button>
+
+            <!--隐藏英文单词-->
+            <Button Grid.Column="3" Margin="4,8,0,8" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Center">
+                <ToolTipService.ToolTip>
+                    <ToolTip>
+                        <TextBlock>
+                            <Run Text="hide" FontWeight="Bold"/>
+                            <Run Text="/haɪd/"/>
+                            <Run Text="verb" FontStyle="Italic" FontWeight="Medium"/>
+                            <Run Text="隐藏"/>
+                        </TextBlock>
+                    </ToolTip>
+                </ToolTipService.ToolTip>
+                <Grid Opacity="0.8">
+                    <FontIcon x:Name="NoHideFontIcon" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE18B;" FontSize="16" Height="22" Width="22"/>
+                    <FontIcon x:Name="HidingFontIcon" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xED1A;" FontSize="16" Height="22" Width="22"/>
+                </Grid>
+                <Button.Flyout>
+                    <MenuFlyout>
+                        <ToggleMenuFlyoutItem x:Name="HideWordToggleMenuItem" Text="隐藏单词" Click="OnClickHideMenuItem"/>
+                        <ToggleMenuFlyoutItem x:Name="HideExplainToggleMenuItem" Text="隐藏释义" Click="OnClickHideMenuItem"/>
+                    </MenuFlyout>
+                </Button.Flyout>
+            </Button>
+
+            <!--切换排序方式-->
+            <Button Grid.Column="4" Margin="4,8,0,8" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Center"
+                    Visibility="{x:Bind ViewModel.SelectedGlossary.IsReadOnly,Mode=OneWay,Converter={StaticResource Bool2Vis},ConverterParameter=-}">
+                <ToolTipService.ToolTip>
+                    <ToolTip>
+                        <TextBlock>
+                            <Run Text="sort" FontWeight="Bold"/>
+                            <Run Text="/sɔːt/"/>
+                            <Run Text="verb" FontStyle="Italic" FontWeight="Medium"/>
+                            <Run Text="排序"/>
+                        </TextBlock>
+                    </ToolTip>
+                </ToolTipService.ToolTip>
+                <Grid Opacity="0.8">
+                    <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE174;" FontSize="16" Height="22" Width="22"/>
+                </Grid>
+                <Button.Flyout>
+                    <MenuFlyout>
+                        <ToggleMenuFlyoutItem Text="按首字母排序" IsChecked="{x:Bind ViewModel.GlossaryWordsOrderMode,Mode=OneWay,Converter={StaticResource Eql2Bool},ConverterParameter=0}" Click="OnCheckOrderByAlphabet"/>
+                        <ToggleMenuFlyoutItem Text="按时间排序" IsChecked="{x:Bind ViewModel.GlossaryWordsOrderMode,Mode=OneWay,Converter={StaticResource Eql2Bool},ConverterParameter=1}" Click="OnCheckOrderByDate"/>
+                    </MenuFlyout>
+                </Button.Flyout>
+            </Button>
+
+            <!--查看生词本属性-->
+            <Button Grid.Column="5" Margin="4,8,0,8" Background="Transparent" BorderBrush="Transparent" VerticalAlignment="Center"
+                    Click="OnClickGlossaryProperty">
+                <ToolTipService.ToolTip>
+                    <ToolTip>
+                        <TextBlock>
+                            <Run Text="property" FontWeight="Bold"/>
+                            <Run Text="/ˈprɒp.ə.ti/"/>
+                            <Run Text="noun" FontStyle="Italic" FontWeight="Medium"/>
+                            <Run Text="属性"/>
+                        </TextBlock>
+                    </ToolTip>
+                </ToolTipService.ToolTip>
+                <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE946;" FontSize="16" Height="22" Width="22" Opacity="0.8"/>
+            </Button>
+        </Grid>
+    </Grid>
+</Page>

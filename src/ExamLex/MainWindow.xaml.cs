@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Runtime.InteropServices;
 using ExamLex.Core;
+using ExamLex.Models;
 using ExamLex.Services;
 using ExamLex.Views;
 using Microsoft.UI;
@@ -24,6 +25,7 @@ public sealed partial class MainWindow : Window
     private CancellationTokenSource? _searchCancellation;
     private bool _sized;
     private MediaPlayer? _speaker;
+    private GlossaryMyModel? _selectedGlossary;
 
     public MainWindow()
     {
@@ -125,6 +127,10 @@ public sealed partial class MainWindow : Window
         ContentFrame.Navigate(type);
         if(ContentFrame.Content is SettingsPage settings)
             settings.Initialize(_preferences,_dictionary,ApplyPreferences,OnDictionaryChanged,ShowHome);
+        if(ContentFrame.Content is GlossariesPage glossaries)
+            glossaries.Initialize(_savedWords,ShowHome,OpenGlossaryWords);
+        if(ContentFrame.Content is GlossaryWordsPage glossaryWords && _selectedGlossary is not null)
+            glossaryWords.Initialize(_selectedGlossary,_savedWords,OpenGlossaries);
     }
     private void OnDictionaryChanged()
     {
@@ -473,17 +479,16 @@ public sealed partial class MainWindow : Window
         }
         catch(Exception ex){ShowEmpty("朗读失败："+ex.Message);}
     }
-    private async void OnGlossaryClicked(object sender,RoutedEventArgs e)
+    private void OpenGlossaries() => NavigateTo(typeof(GlossariesPage),"Glossary");
+
+    private void OpenGlossaryWords(GlossaryMyModel model)
     {
-        var words=_savedWords.Count==0?
-            "生词本还是空的。先安装词库并添加收藏。":
-            string.Join("\n",_savedWords.OrderBy(x=>x,StringComparer.OrdinalIgnoreCase));
-        await new ContentDialog{
-            XamlRoot=Root.XamlRoot,Title="ExamLex · 生词本",
-            Content=new ScrollViewer{MaxHeight=360,Content=new TextBlock{Text=words,TextWrapping=TextWrapping.Wrap}},
-            CloseButtonText="返回"
-        }.ShowAsync();
+        _selectedGlossary=model;
+        NavigateTo(typeof(GlossaryWordsPage),"Glossary");
     }
+
+    private void OnGlossaryClicked(object sender,RoutedEventArgs e) => OpenGlossaries();
+
     private void OnPinClicked(object sender,RoutedEventArgs e)
     {
         if(AppWindow.Presenter is OverlappedPresenter presenter)

@@ -7,6 +7,8 @@
 - Restore Flint's 38-DIP title row, auto-sized search textbox, original footer icons and 72-DIP logo placeholder (brand-swapped).
 - Preserve TOEFL/IELTS internal calculator entry beside Glossary, local vocabulary services, and independent app/database update actions.
 - Version synchronized to 0.1.5.0.
+- Replace custom pop-up glossary with an internal Flint-derived GlossariesPage and Flint-shaped GlossaryWordsPage, with the original tab selector, collection tile layout and toolbar.
+
 
 ## [0.1.4] - 2026-10-11
 - Restore the agreed sense-first entry structure in the Windows UI: part-of-speech headers, Chinese/Japanese/English fields for each sense, pronunciation, inflections, synonyms, antonyms, valency, phrases/collocations, examples, CEFR and exam tags.
