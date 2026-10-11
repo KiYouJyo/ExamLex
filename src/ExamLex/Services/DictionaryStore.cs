@@ -10,10 +10,14 @@ namespace ExamLex.Services;
 /// </summary>
 public sealed class DictionaryStore
 {
-    public string DataDirectory { get; } = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ExamLex");
+    public string DataDirectory { get; }
     public string DatabasePath => Path.Combine(DataDirectory, "lexicon-current.db");
-    public DictionaryStore() => Directory.CreateDirectory(DataDirectory);
+    public DictionaryStore(string? dataDirectory = null)
+    {
+        DataDirectory = dataDirectory ?? Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ExamLex");
+        Directory.CreateDirectory(DataDirectory);
+    }
 
     public async Task<IReadOnlyList<DictionaryEntry>> SearchAsync(
         string prefix, CancellationToken ct = default)
