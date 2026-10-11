@@ -21,12 +21,12 @@ jobs:
         run: dotnet restore tests/ExamLex.Core.Tests/ExamLex.Core.Tests.csproj
       - name: Run core unit tests
         run: dotnet test tests/ExamLex.Core.Tests/ExamLex.Core.Tests.csproj --no-restore -c Release
-      - name: Restore WinUI project
-        run: dotnet restore src/ExamLex/ExamLex.csproj -p:Platform=x64
+      - name: Set up Visual Studio MSBuild
+        uses: microsoft/setup-msbuild@v2
       - name: Build WinUI app
         shell: pwsh
         run: |
-          dotnet build src/ExamLex/ExamLex.csproj --no-restore -c Release -p:Platform=x64 -v:diag *> xaml-build.log
+          msbuild src/ExamLex/ExamLex.csproj /restore /p:Configuration=Release /p:Platform=x64 /verbosity:diagnostic /nologo *> xaml-build.log
           $exit = $LASTEXITCODE
           Get-Content xaml-build.log | Select-String -Pattern 'error|exception|WMC|XamlCompiler|fatal' -Context 3,2 | Select-Object -Last 160
           exit $exit
