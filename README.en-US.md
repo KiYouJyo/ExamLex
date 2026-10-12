@@ -1,23 +1,20 @@
-# ExamLex
+<p align="center"><img src="https://github.com/KiYouJyo/ExamLex/releases/download/v0.2.0/ExamLex-Icon.png" width="128" height="128" alt="ExamLex icon"></p>
+<h1 align="center">ExamLex</h1>
+<p align="center">Native Windows English examination dictionary and TOEFL / IELTS score calculator.</p>
+<p align="center"><a href="https://github.com/KiYouJyo/ExamLex/releases/latest"><img src="https://img.shields.io/github/v/release/KiYouJyo/ExamLex?label=Release&color=2F81F7" alt="Release"></a> <a href="https://github.com/KiYouJyo/ExamLex/actions/workflows/ci.yml"><img src="https://github.com/KiYouJyo/ExamLex/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a> <img src="https://img.shields.io/badge/Windows-WinUI%203-0078D4" alt="Windows WinUI 3"></p>
+<p align="center"><a href="README.md">简体中文</a> | <a href="README.ja-JP.md">日本語</a> | English</p>
 
-A local-first Windows WinUI 3 dictionary shell and score calculator for TOEFL iBT and IELTS.
+## Install
+Download the signed x64 MSIX, public signing certificate and SHA256 checksums from the [latest release](https://github.com/KiYouJyo/ExamLex/releases/latest). Follow [INSTALL.md](packaging/INSTALL.md) for certificate trust instructions on first sideload.
 
-**Status: v0.1.5 foundation.** The dictionary deliberately ships with **zero vocabulary entries**. On first launch no dictionary is bundled. Settings can independently check/download the published canonical SQLite schema v1 from ExamLex-Lexicon with SHA256 verification. The initial published A1 data is a limited development pilot, not the complete Oxford list. No Flint or ECDICT data is bundled.
+## Features
+- Offline English dictionary with available CEFR tags, translations, pronunciations, examples and word information.
+- Bundles the latest **published** [ExamLex-Lexicon](https://github.com/KiYouJyo/ExamLex-Lexicon) at build time, verified by SHA256 and SQLite schema, with separate in-app updates.
+- TOEFL iBT (2026 scale) and IELTS score calculators.
+- Windows App SDK / WinUI 3, Flint-derived UI, single-instance launch, theme, global shortcut and tray support.
+- In-page app update status, download and restart without modal dialogs.
 
-The UI ports the original view structure and control templates of [Flint](https://github.com/sh0ckj0ckey/Flint) (MPL-2.0). The adapted Flint XAML sources are included under MPL-2.0 with attribution; no upstream dictionary data or branded images are included. The calculator button appears in the bottom toolbar immediately **to the left of the glossary button**.
+**Dictionary scope:** The initial 0.2.0 release bundles a limited A1 *pilot* lexicon, not a complete exam dictionary.
 
-## Build
-
-Windows 10 19041+ or Windows 11, Visual Studio Windows App SDK workload and .NET 10:
-
-```powershell
-dotnet restore ExamLex.slnx
-dotnet test tests/ExamLex.Core.Tests/ExamLex.Core.Tests.csproj -c Release
-msbuild src/ExamLex/ExamLex.csproj /restore /p:Configuration=Release /p:Platform=x64
-```
-
-The TOEFL 2026 and IELTS tools average already scaled section scores; IELTS also displays an approximate overall CEFR mapping. This app does not predict scores from raw question counts or issue official score reports.
-
-See [Chinese README](README.md), [Architecture](docs/ARCHITECTURE.md) and [Roadmap](docs/ROADMAP.md). ExamLex is independent of ETS, IELTS test owners and the author of Flint.
-
-Signed sideload acceptance MSIX: [workflow](https://github.com/KiYouJyo/ExamLex/actions/workflows/msix-acceptance.yml) · [installation instructions](packaging/INSTALL.md). Not a Microsoft Store release.
+## Credits
+The UI derives from [Flint](https://github.com/sh0ckj0ckey/Flint) under MPL-2.0. ExamLex is not affiliated with exam providers. See [Chinese README](README.md) for build, architecture and license information.

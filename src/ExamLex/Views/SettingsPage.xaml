@@ -316,7 +316,7 @@
                 <!-- About is the exact Flint card/expander structure, with requested brand substitutions -->
 <labs:SettingsExpander x:Name="AboutSettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch">
 <labs:SettingsExpander.HeaderIcon><FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE946;"/></labs:SettingsExpander.HeaderIcon>
-<labs:SettingsExpander.Header><TextBlock x:Name="AppVersionText" Text="ExamLex 0.1.5"/></labs:SettingsExpander.Header>
+<labs:SettingsExpander.Header><TextBlock x:Name="AppVersionText" Text="ExamLex 0.2.0"/></labs:SettingsExpander.Header>
 <labs:SettingsExpander.Description>
     <StackPanel Spacing="2">
         <TextBlock Text="ExamLex 是一款开源的离线英语考试词典"/>
@@ -340,7 +340,7 @@
 <StackPanel Orientation="Horizontal" Spacing="6">
 <ProgressRing x:Name="DatabaseUpdateRing" Height="16" Width="16" Visibility="Collapsed" IsActive="False"/>
 <TextBlock x:Name="DatabaseUpdateText" Text="检查更新" FontSize="13" VerticalAlignment="Center"/>
-<FontIcon x:Name="DatabaseUpdateGlyph" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A7;" FontSize="14"/>
+<FontIcon x:Name="DatabaseUpdateGlyph" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE895;" FontSize="14"/>
 </StackPanel>
 </Button></labs:SettingsCard></labs:SettingsExpander.Items></labs:SettingsExpander>
 

@@ -44,6 +44,7 @@ public sealed partial class MainWindow : Window
         ExtendsContentIntoTitleBar=true;
         SetTitleBar(TitleDragRegion);
         _dictionary=new DictionaryStore();
+        _dictionary.EnsureBundledLexicon();
         _preferences=AppSettings.Load();
         _glossaryPath=Path.Combine(_dictionary.DataDirectory,"glossary.json");
         _savedWords=ReadSavedWords();
@@ -526,6 +527,14 @@ public sealed partial class MainWindow : Window
     private void OnGlossaryClicked(object sender,RoutedEventArgs e)
     {
         if(_preferences.EnableGlossary)OpenGlossaries();
+    }
+
+    // Called by Windows App SDK redirected launches instead of making a second window.
+    public void RestoreExistingInstance()
+    {
+        _windows?.Restore(); // also reverses SW_HIDE when close-to-tray is selected
+        AppWindow.Show();
+        Activate();
     }
 
     public void ExitFromTray()

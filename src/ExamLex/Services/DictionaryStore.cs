@@ -1,5 +1,8 @@
 using ExamLex.Core;
 using Microsoft.Data.Sqlite;
+using System.Security.Cryptography;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace ExamLex.Services;
 
@@ -17,6 +20,64 @@ public sealed class DictionaryStore
         DataDirectory = dataDirectory ?? Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ExamLex");
         Directory.CreateDirectory(DataDirectory);
+    }
+
+
+    /// <summary>
+    /// Prefer the newest bundled, signed-release lexicon on first install and on
+    /// upgrades. Never replace a locally newer independently downloaded lexicon.
+    /// </summary>
+    public void EnsureBundledLexicon()
+    {
+        string dir=Path.Combine(AppContext.BaseDirectory,"Assets","Lexicon");
+        string bundled=Path.Combine(dir,"examlex-lexicon.db");
+        string manifest=Path.Combine(dir,"lexicon-manifest.json");
+        if(!File.Exists(bundled)||!File.Exists(manifest))return; // development build without bundle
+        using var doc=JsonDocument.Parse(File.ReadAllText(manifest));
+        var meta=doc.RootElement;
+        string version=meta.GetProperty("version").GetString()??throw new InvalidDataException("词库版本缺失");
+        string checksum=meta.GetProperty("sha256").GetString()??throw new InvalidDataException("词库校验信息缺失");
+        if(meta.GetProperty("schema_version").GetInt32()!=1)
+            throw new InvalidDataException("内置词库 Schema 不受支持");
+        string state=Path.Combine(DataDirectory,"lexicon-state.json");
+        if(File.Exists(DatabasePath))
+        {
+            if(!File.Exists(state))return; // never overwrite an unknown user database
+            string current;
+            try
+            {
+                using var existing=JsonDocument.Parse(File.ReadAllText(state));
+                current=existing.RootElement.GetProperty("version").GetString()??"";
+            }
+            catch(JsonException){return;}
+            if(!IsNewer(version,current))return;
+        }
+        if(!Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(bundled)))
+            .Equals(checksum,StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("内置词库 SHA256 校验失败");
+        ValidateCanonicalSchema(bundled);
+        string staging=Path.Combine(DataDirectory,"bundled-"+Guid.NewGuid().ToString("N")+".tmp");
+        try
+        {
+            File.Copy(bundled,staging);
+            File.Move(staging,DatabasePath,true);
+            File.WriteAllText(state,JsonSerializer.Serialize(new {
+                version,sha256=checksum,updated_at=DateTimeOffset.UtcNow,source="bundled-msix"
+            }));
+        }
+        finally {if(File.Exists(staging))File.Delete(staging);}
+    }
+
+    private static bool IsNewer(string bundled,string installed)
+    {
+        static Version? ParseTag(string s)
+        {
+            var match=Regex.Match(s,@"(?:^|-)v(?<version>\d+\.\d+(?:\.\d+){0,2})$");
+            return match.Success&&Version.TryParse(match.Groups["version"].Value,out var v)?v:null;
+        }
+        var a=ParseTag(bundled);
+        var b=ParseTag(installed);
+        return a is not null&&b is not null&&a>b;
     }
 
     public async Task<IReadOnlyList<DictionaryEntry>> SearchAsync(

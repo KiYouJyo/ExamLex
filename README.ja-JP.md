@@ -1,21 +1,19 @@
-# ExamLex
+<p align="center"><img src="https://github.com/KiYouJyo/ExamLex/releases/download/v0.2.0/ExamLex-Icon.png" width="128" height="128" alt="ExamLex アイコン"></p>
+<h1 align="center">ExamLex</h1>
+<p align="center">TOEFL・IELTS に対応する Windows ネイティブ英語辞書・スコア計算ツール。</p>
+<p align="center"><a href="https://github.com/KiYouJyo/ExamLex/releases/latest"><img src="https://img.shields.io/github/v/release/KiYouJyo/ExamLex?label=Release&color=2F81F7" alt="Release"></a> <a href="https://github.com/KiYouJyo/ExamLex/actions/workflows/ci.yml"><img src="https://github.com/KiYouJyo/ExamLex/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a> <img src="https://img.shields.io/badge/Windows-WinUI%203-0078D4" alt="Windows WinUI 3"></p>
+<p align="center"><a href="README.md">简体中文</a> | 日本語 | <a href="README.en-US.md">English</a></p>
 
-ExamLex は TOEFL iBT・IELTS 向けの Windows（WinUI 3）英語辞書アプリ／スコア計算ツールです。
+## ダウンロード
+[最新 GitHub Release](https://github.com/KiYouJyo/ExamLex/releases/latest) から署名済み x64 MSIX、公開証明書と SHA256 検証ファイルを取得してください。初回のインストール方法は [INSTALL.md](packaging/INSTALL.md) を参照してください。
 
-**現在は v0.1.5 の基盤実装です。辞書データは一切同梱されていません。** 辞書データは最初から同梱せず、設定画面から ExamLex-Lexicon の公開 SQLite データを個別に確認・ダウンロードできます。現在のデータは A1 の小規模なテスト版であり、Oxford A1 全体ではありません。語彙、発音、例文、CEFR レベル、試験タグなどを将来追加できる構造です。
+## 主な機能
+- オフライン英語辞書（CEFR、訳語、発音、例文などは収録データに準拠）。
+- ビルド時に公開済みの最新 [ExamLex-Lexicon](https://github.com/KiYouJyo/ExamLex-Lexicon) を SHA256・SQLite 検証の上でアプリに同梱。辞書のみの更新も可能。
+- TOEFL iBT（2026 年以降）・IELTS スコア計算。
+- WinUI 3 / Flint ベースの画面、単一インスタンス起動、テーマ、ショートカット、トレイ対応。
 
-画面デザインは [Flint](https://github.com/sh0ckj0ckey/Flint) の画面構成とコントロールテンプレートを MPL-2.0 に従って移植しています。Flint の辞書データ・ブランド画像は含みません。計算ツールの入口はホーム画面下部の単語帳アイコンの左隣です。
+**収録範囲:** 0.2.0 に同梱する辞書は A1 の試験的なパイロット版であり、試験対策用の完全版ではありません。
 
-## 開発
-
-Windows 10 19041+／Windows 11、.NET 10 SDK と WinUI 3 開発環境が必要です。
-
-```powershell
-dotnet restore ExamLex.slnx
-dotnet test tests/ExamLex.Core.Tests/ExamLex.Core.Tests.csproj -c Release
-msbuild src/ExamLex/ExamLex.csproj /restore /p:Configuration=Release /p:Platform=x64
-```
-
-試験機関が公表する正式スコアではなく、入力した各セクションのスコアから合計を計算します。詳細は [中文说明](README.md)、[設計](docs/ARCHITECTURE.md)、[計画](docs/ROADMAP.md) を参照してください。
-
-署名済み MSIX テストパッケージ：[GitHub Actions](https://github.com/KiYouJyo/ExamLex/actions/workflows/msix-acceptance.yml) · [インストール手順](packaging/INSTALL.md)。Microsoft Store 版ではありません。
+## ライセンス
+UI の一部は [Flint](https://github.com/sh0ckj0ckey/Flint) を MPL-2.0 に従って移植しています。詳しくは [中文 README](README.md) を参照してください。

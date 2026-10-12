@@ -1,0 +1,82 @@
+name: Publish ExamLex 0.2.0 Release
+
+on:
+  workflow_run:
+    workflows: ["Signed MSIX acceptance"]
+    types: [completed]
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Confirm first stable release version
+        shell: bash
+        run: |
+          grep -q '<Version>0.2.0</Version>' src/ExamLex/ExamLex.csproj
+          grep -q 'Version="0.2.0.0"' src/ExamLex/Package.appxmanifest
+          if gh release view v0.2.0 >/dev/null 2>&1; then
+            echo "ExamLex v0.2.0 already released; refusing to silently replace published binaries."
+            exit 1
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Download passed signed package and icon from acceptance run
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          name: ExamLex-v0.2.0-MSIX-acceptance
+          path: dist
+
+      - name: Confirm signed package files exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s dist/ExamLex_0.2.0.0_x64.msix
+          test -s dist/ExamLex_0.2.0_public.cer
+          test -s dist/SHA256SUMS.txt
+          test -s dist/ExamLex-Icon.png
+          cd dist
+          sha256sum --check SHA256SUMS.txt
+
+      - name: Publish first stable GitHub Release with signed assets
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v0.2.0
+          target_commitish: ${{ github.event.workflow_run.head_sha }}
+          name: ExamLex 0.2.0
+          prerelease: false
+          draft: false
+          make_latest: true
+          fail_on_unmatched_files: true
+          body: |
+            ## ExamLex 0.2.0 — 首个正式版本
+
+            Windows 原生英语考试词典与 TOEFL / IELTS 算分器。
+
+            - 应用启动采用 Windows App SDK 单实例重定向，重复启动唤回原有窗口。
+            - 首次安装自带构建时最新版 ExamLex-Lexicon 正式发布数据库（当前为 A1 Pilot 试验版）；通过 SHA256 与 SQLite 验证后打包。
+            - 设置页的软件更新与词库更新使用统一的刷新图标，支持独立更新。
+            - Fluent/Flint 风格的词典、主题、生词本、语音和 Windows 系统设置。
+            - 自有图标与高 DPI 包装资源、签名的 x64 MSIX。
+
+            **注意：内置词库目前仍是 A1 试验内容，不是完整的考试词库。**
+
+            ### 安装
+            下载 `ExamLex_0.2.0.0_x64.msix` 及 `ExamLex_0.2.0_public.cer`，按 `INSTALL.md` 的首次证书信任指引安装。可使用 `SHA256SUMS.txt` 校验安装包。
+          files: |
+            dist/ExamLex_0.2.0.0_x64.msix
+            dist/ExamLex_0.2.0_public.cer
+            dist/SHA256SUMS.txt
+            dist/INSTALL.md
+            dist/ExamLex-Icon.png

@@ -1,60 +1,65 @@
-<h1 align="center">ExamLex</h1>
-<p align="center">面向 TOEFL 与 IELTS 的 Windows 原生英语词典与考试算分工具。</p>
 <p align="center">
-  <a href="https://github.com/KiYouJyo/ExamLex/actions/workflows/ci.yml"><img src="https://github.com/KiYouJyo/ExamLex/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/Windows-WinUI%203-0078D4" alt="WinUI 3">
-  <img src="https://img.shields.io/badge/Development-0.1.5-blue" alt="Version">
-  <img src="https://img.shields.io/badge/Dictionary-Empty-lightgrey" alt="Empty dictionary">
+  <img src="https://github.com/KiYouJyo/ExamLex/releases/download/v0.2.0/ExamLex-Icon.png" width="128" height="128" alt="ExamLex 应用图标">
 </p>
-<p align="center">简体中文 · <a href="README.en-US.md">English</a> · <a href="README.ja-JP.md">日本語</a></p>
+<h1 align="center">ExamLex</h1>
+<p align="center">面向 TOEFL 与 IELTS 的 Windows 原生英语考试词典与算分器。</p>
+<p align="center">
+  <a href="https://github.com/KiYouJyo/ExamLex/releases/latest"><img src="https://img.shields.io/github/v/release/KiYouJyo/ExamLex?display_name=tag&sort=semver&color=2F81F7&label=Release" alt="Release"></a>
+  <a href="https://github.com/KiYouJyo/ExamLex/actions/workflows/ci.yml"><img src="https://github.com/KiYouJyo/ExamLex/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
+  <img src="https://img.shields.io/badge/Windows-WinUI%203-0078D4?logo=windows&logoColor=white" alt="Windows WinUI 3">
+  <img src="https://img.shields.io/badge/Architecture-x64-005A9E" alt="x64">
+  <img src="https://img.shields.io/badge/Dictionary-ExamLex--Lexicon-6F42C1" alt="ExamLex-Lexicon">
+  <img src="https://img.shields.io/badge/Design-Local--first-2EA043" alt="Local-first">
+</p>
+<p align="center">简体中文 | <a href="README.ja-JP.md">日本語</a> | <a href="README.en-US.md">English</a></p>
 
-## 项目简介
+## 简介
 
-ExamLex 是基于 **WinUI 3** 的本地优先桌面应用。主页与设置页的布局、交互控件模板实际移植自开源项目 [Flint](https://github.com/sh0ckj0ckey/Flint)（MPL-2.0）；品牌和数据接口替换为 ExamLex。原版 XAML 源文件保存在 `upstream-flint/` 供差异审计，不包含 Flint 词库和品牌图片。
+ExamLex 是基于 **Windows App SDK / WinUI 3** 开发的本地优先英语词典与考试算分工具。界面以开源词典 [Flint](https://github.com/sh0ckj0ckey/Flint) 为基础移植，保留其主要导航、设置及工具栏设计，同时采用独立的词库与更新机制。
 
-**当前为 0.1.5 基础工程，不是可用的完整英语词典。** 首次启动不捆绑词库。设置页可独立检查并下载 [ExamLex-Lexicon](https://github.com/KiYouJyo/ExamLex-Lexicon) 正式 Schema v1 SQLite 发布物；当前公开的只是小规模 A1 测试版，不是 Oxford A1 完整词表。不会下载或解压 Flint/ECDICT 数据包。
+## 获取应用
 
-## 已有功能
+- **[最新 GitHub Release](https://github.com/KiYouJyo/ExamLex/releases/latest)**：下载签名的 x64 MSIX、公开证书、SHA256 校验文件及安装说明。
+- **[ExamLex-Lexicon](https://github.com/KiYouJyo/ExamLex-Lexicon)**：独立维护的词典数据库，可在软件内单独检查和安装更新。
+- **[安装指南](packaging/INSTALL.md)**：首次侧载时需信任发布证书；软件包不是 Microsoft Store 版本。
 
-- **词典主页与内页导航**：与 Flint 一致的 580×386 DIP 初始窗口及原版控件模板、单词搜索、内部算分页与 Flint 风格设置页、底栏设置/算分器/生词本/窗口置顶。
-- **算分器入口**：主页底栏，**在生词本按钮左侧**（与需求截图红框位置一致）。
-- **新版 TOEFL iBT**（2026-01-21 起）：四科 1–6、0.5 步长，四科平均并取最近 0.5；显示 CEFR 与旧制总分**参考区间**。
-- **IELTS**：四科 0–9、0.5 步长，按官方 0.5 档进位。
+## 主要功能
 
-- **ExamLex-Lexicon 独立词库**：直接读取其多表 SQLite Schema v1。设置页有专门数据库检查/下载入口，校验 SHA256 与 SQLite 完整性；软件更新完全分开。
-- **自动化测试**：独立于 WinUI 的计算核心与单元测试。
+- **词汇查询**：英语单词、词性、英中日释义、音标、形态、例句、配价与搭配、CEFR 分级（以数据库实际已有内容为准）。
+- **内置离线词库**：0.2.0 开始，每次构建从 ExamLex-Lexicon **最新正式 GitHub Release** 下载并校验 SQLite，随安装包交付。安装后无需先下载词库即可查询已收录词条。
+- **数据库独立更新**：在设置 → 关于中单独检查新版词库；SHA256 和 SQLite Schema 验证通过后才替换本地数据库。
+- **TOEFL / IELTS 算分器**：2026 新制 TOEFL 1–6 分制四科汇总、CEFR 与旧制参考区间；IELTS 四科评分及总分计算。
+- **Windows 原生体验**：浅色/深色主题、Mica / Acrylic、系统语音朗读、窗口置顶、单实例启动、系统托盘与快捷键。
+- **免弹窗更新**：在原有设置卡片内检查并下载应用或词库更新，下载完成后使用“重启应用更新”按钮。
+- **本地数据优先**：词典、配置和生词本保存在本机；联网只用于明确的更新检查或下载。
 
-> 算分器计算的是已获各科**标准分**的组合结果；不支持仅由答对题数推测正式分数。考试机构成绩报告为准；不同考试之间不作一对一的官方分数换算。
+> **当前词库范围**：首个正式软件版本内置当前最新的 `lexicon-a1-pilot-v0.2.1` 试验数据库。它并不等于完整的 Oxford、TOEFL 或 IELTS 词汇库；请以 [ExamLex-Lexicon 的发布说明](https://github.com/KiYouJyo/ExamLex-Lexicon/releases/latest) 为准。
+
+## 安装与更新
+
+打开 [Releases](https://github.com/KiYouJyo/ExamLex/releases/latest) 获取 `ExamLex_0.2.0.0_x64.msix` 与公开证书。首次侧载如遇到证书信任提示，请按照 [INSTALL.md](packaging/INSTALL.md) 安装发布证书，再安装 MSIX。后续可以通过软件内“检查更新”下载并验证新的签名包；词库更新渠道与程序更新分离。
+
+## 系统要求
+
+- Windows 10 2004（19041）及以上 / Windows 11
+- x64
+- Windows App SDK（MSIX 包内提供应用运行所需框架依赖）
 
 ## 开发与构建
 
-要求 Windows 10 19041+ / Windows 11、Visual Studio 2022（Windows App SDK 与 C# 桌面开发工作负载）、.NET 10 SDK。
-
 ```powershell
-dotnet restore ExamLex.slnx
 dotnet test tests/ExamLex.Core.Tests/ExamLex.Core.Tests.csproj -c Release
+./scripts/Install-IconAssets.ps1
+./scripts/Stage-LatestLexicon.ps1
 msbuild src/ExamLex/ExamLex.csproj /restore /p:Configuration=Release /p:Platform=x64
 ```
 
-在 Visual Studio 打开 `ExamLex.slnx`，选择 **ExamLex** 为启动项目，使用 **x64** 运行。现已提供 [签名 MSIX 验收工作流](https://github.com/KiYouJyo/ExamLex/actions/workflows/msix-acceptance.yml)；在 Actions 的构建产物中下载 `ExamLex_0.1.5.0_x64.msix` 与公开证书。验收版不是 Microsoft Store 已审核发布包，安装说明见 [packaging/INSTALL.md](packaging/INSTALL.md)。
+CI 在打包时会重新验证词库发布版本、SHA256、SQLite 完整性及实际词条数。签名包验收和 [首个正式 Release 的自动发布流程](.github/workflows/release.yml) 均可在 GitHub Actions 中查看。
 
-## 项目结构
+## 文档与版权
 
-```text
-src/ExamLex/                  WinUI 3 桌面界面、词库 SQLite 服务
-src/ExamLex.Core/             考试算分、词条结构（可跨平台测试）
-tests/ExamLex.Core.Tests/     xUnit 测试
-.github/workflows/            GitHub Actions
-docs/                         架构、UI、路线图、规则与发布说明
-```
+- [架构](docs/ARCHITECTURE.md) · [路线图](docs/ROADMAP.md) · [发布说明](docs/RELEASE.md)
+- [隐私](PRIVACY.md) · [贡献指南](CONTRIBUTING.md) · [安全政策](SECURITY.md) · [更新日志](CHANGELOG.md)
+- 界面部分改编自 Flint，按原始 [MPL-2.0](LICENSES/MPL-2.0.txt) 许可保留出处。ExamLex-Lexicon 的词库数据和署名见对应仓库的许可证/发布资料。
 
-## 资料与版权
-
-- 界面移植来源：[Flint](https://github.com/sh0ckj0ckey/Flint) · MPL-2.0，作者 sh0ckj0ckey。ExamLex 包含注明许可的 Flint XAML 与控件样式源代码；不包含其内置词典或品牌图片。
-- 托福：[ETS TOEFL score scales](https://www.ets.org/toefl/test-takers/ibt/scores/understand-scores.html)。
-- 雅思：[IELTS official scoring](https://ielts.org/take-a-test/your-results/ielts-scoring-in-detail)。
-
-
-详见 [路线图](docs/ROADMAP.md)、[UI 规范](docs/UI_GUIDELINES.md)、[架构](docs/ARCHITECTURE.md)、[隐私](PRIVACY.md)、[贡献指南](CONTRIBUTING.md)及[更新日志](CHANGELOG.md)。
-
-项目代码许可见 [LICENSE](LICENSE)。ExamLex 与 ETS、IELTS 考试主办机构及 Flint 开发者无隶属关系。
+ExamLex 与 ETS、IELTS 考试举办机构及 Flint 开发者无官方隶属关系。

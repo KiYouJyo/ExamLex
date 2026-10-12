@@ -21,11 +21,19 @@ jobs:
         run: dotnet restore tests/ExamLex.Core.Tests/ExamLex.Core.Tests.csproj
       - name: Run core unit tests
         run: dotnet test tests/ExamLex.Core.Tests/ExamLex.Core.Tests.csproj --no-restore -c Release
+      - name: Set up Python for SQLite schema validation
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
       - name: Set up Visual Studio MSBuild
         uses: microsoft/setup-msbuild@v2
       - name: Install owner-provided icon assets
         shell: pwsh
         run: ./scripts/Install-IconAssets.ps1
+      - name: Stage newest official ExamLex-Lexicon
+        shell: pwsh
+        run: ./scripts/Stage-LatestLexicon.ps1
+
       - name: Build WinUI app
         shell: pwsh
         run: |
