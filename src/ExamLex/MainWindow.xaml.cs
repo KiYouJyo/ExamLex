@@ -30,6 +30,9 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        // Taskbar and window title-bar icon from the owner-supplied v3 ICO asset.
+        string iconPath=Path.Combine(AppContext.BaseDirectory,"Assets","ExamLex.ico");
+        if(File.Exists(iconPath)) AppWindow.SetIcon(iconPath);
         ExtendsContentIntoTitleBar=true;
         SetTitleBar(TitleDragRegion);
         _dictionary=new DictionaryStore();

@@ -1,4 +1,5 @@
 using ExamLex.Core;
+using ExamLex.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -7,10 +8,14 @@ namespace ExamLex.Views;
 public sealed partial class ScoreCalculatorPage : Page
 {
     private bool _busy;
+    private Action? _backHome;
+    public void Initialize(Action backHome) => _backHome=backHome;
+    private void OnBackClicked(object sender,RoutedEventArgs e) => _backHome?.Invoke();
     public ScoreCalculatorPage()
     {
         InitializeComponent();
         Configure();
+        MicaSurfaceService.Attach(this);
     }
     private ExamKind Exam => ExamSelector.SelectedIndex == 1 ? ExamKind.Ielts : ExamKind.Toefl2026;
     private void OnExamChanged(object sender, SelectionChangedEventArgs e)

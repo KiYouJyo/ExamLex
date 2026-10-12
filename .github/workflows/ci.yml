@@ -23,6 +23,9 @@ jobs:
         run: dotnet test tests/ExamLex.Core.Tests/ExamLex.Core.Tests.csproj --no-restore -c Release
       - name: Set up Visual Studio MSBuild
         uses: microsoft/setup-msbuild@v2
+      - name: Install owner-provided icon assets
+        shell: pwsh
+        run: ./scripts/Install-IconAssets.ps1
       - name: Build WinUI app
         shell: pwsh
         run: |

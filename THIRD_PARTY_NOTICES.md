@@ -13,3 +13,7 @@ CommunityToolkit for WinUI is used for its `SettingsCard` and `SettingsExpander`
 Upstream source XAML and styles are preserved unmodified under `upstream-flint/Flint3/` to make visual parity auditing possible. Their adapted working copies in `src/ExamLex/Views/SettingsPage.xaml` and `src/ExamLex/ThemeResource/` retain MPL-2.0 license, see `LICENSES/MPL-2.0.txt`.
 
 The source-derived glossary navigation UI is based on Flint3's `GlossariesPage.xaml` and `GlossaryWordsPage.xaml`; original copies are under `upstream-flint/Flint3/Views/`. Their ExamLex adaptations are likewise MPL-2.0.
+
+### Icon asset provenance
+
+All v0.1.6 branding icon raster tiles and ICO are extracted from the repository owner-provided `ExamLex_Complete_Icon_Assets_v3.zip`; the former generative EL monogram tiles are not used in builds. All derivatives produced for required Windows tile sizes originate from these files.

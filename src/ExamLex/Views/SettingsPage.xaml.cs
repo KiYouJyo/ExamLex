@@ -19,6 +19,7 @@ public sealed partial class SettingsPage : Page
     {
         InitializeComponent();
         Loaded += (_, _) => DispatcherQueue.TryEnqueue(() => SettingsScroll.ChangeView(null, 0, null, true));
+        MicaSurfaceService.Attach(this);
     }
 
     public void Initialize(AppSettings settings, DictionaryStore store, Action applySettings,
@@ -136,27 +137,27 @@ public sealed partial class SettingsPage : Page
                 Content=new TextBlock{Text=$"当前 {AppVersionText.Text}。{result.Version}。",TextWrapping=TextWrapping.Wrap},
                 CloseButtonText="确定"
             };
-            await dialog.ShowAsync();
+            await MicaSurfaceService.ShowAsync(dialog);
         }
         catch(Exception ex)
         {
-            await new ContentDialog
+            await MicaSurfaceService.ShowAsync(new ContentDialog
             {
                 XamlRoot=XamlRoot,Title="检查更新失败",
                 Content=new TextBlock{Text=ex.Message,TextWrapping=TextWrapping.Wrap},
                 CloseButtonText="确定"
-            }.ShowAsync();
+            });
         }
     }
 
     private async Task ShowLexiconMessageAsync(string message)
     {
-        await new ContentDialog
-        {
+        await MicaSurfaceService.ShowAsync(new ContentDialog
+            {
             XamlRoot=XamlRoot,Title="ExamLex-Lexicon",
             Content=new TextBlock{Text=message,TextWrapping=TextWrapping.Wrap},
             CloseButtonText="确定"
-        }.ShowAsync();
+        });
     }
 
     private async void OnDatabaseUpdateClicked(object sender,RoutedEventArgs e)
@@ -184,7 +185,7 @@ public sealed partial class SettingsPage : Page
                 CloseButtonText="取消",
                 DefaultButton=ContentDialogButton.Primary
             };
-            if(await dialog.ShowAsync()!=ContentDialogResult.Primary)
+            if(await MicaSurfaceService.ShowAsync(dialog)!=ContentDialogResult.Primary)
             {
                 DatabaseUpdateStatus.Text="已取消词库更新。";
                 return;

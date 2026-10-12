@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using ExamLex.Services;
 using System.Text.Json;
 using ExamLex.Models;
 using Microsoft.UI.Xaml;
@@ -16,7 +17,7 @@ public sealed partial class GlossariesPage : Page
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "ExamLex","glossaries.json");
 
-    public GlossariesPage() => InitializeComponent();
+    public GlossariesPage() { InitializeComponent(); MicaSurfaceService.Attach(this); }
 
     public void Initialize(IEnumerable<string> existingFavorites,Action backHome,
         Action<GlossaryMyModel> openWords)

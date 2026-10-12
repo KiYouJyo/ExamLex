@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Translucent overlays allow OS-managed Popup / Flyout Mica to remain visible.
+     MicaSurfaceService installs MicaBackdrop on the actual transient surface.
+     Theme colors provide fallbacks where the OS compositor lacks Mica. -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="ContentDialogBackground" Color="#B9212427"/>
+      <SolidColorBrush x:Key="ComboBoxDropDownBackground" Color="#B9212427"/>
+      <SolidColorBrush x:Key="FlyoutPresenterBackground" Color="#B9212427"/>
+      <SolidColorBrush x:Key="MenuFlyoutPresenterBackground" Color="#B9212427"/>
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="ContentDialogBackground" Color="#C6F4F4F5"/>
+      <SolidColorBrush x:Key="ComboBoxDropDownBackground" Color="#C6F4F4F5"/>
+      <SolidColorBrush x:Key="FlyoutPresenterBackground" Color="#C6F4F4F5"/>
+      <SolidColorBrush x:Key="MenuFlyoutPresenterBackground" Color="#C6F4F4F5"/>
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="Default">
+      <SolidColorBrush x:Key="ContentDialogBackground" Color="#BC22262A"/>
+      <SolidColorBrush x:Key="ComboBoxDropDownBackground" Color="#BC22262A"/>
+      <SolidColorBrush x:Key="FlyoutPresenterBackground" Color="#BC22262A"/>
+      <SolidColorBrush x:Key="MenuFlyoutPresenterBackground" Color="#BC22262A"/>
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+</ResourceDictionary>

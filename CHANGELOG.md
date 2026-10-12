@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6] - 2026-10-12
+- Fix duplicate window/header back arrow on every internal page: original Flint title is only shown for the dictionary homepage, and each internal page owns its own title.
+- Add the Flint-style fixed bottom back/navigation bar to TOEFL / IELTS score calculator so content remains scrollable without hiding the return control.
+- Replace generated EL placeholder icon tiles with the owner-provided `ExamLex_Complete_Icon_Assets_v3.zip` image masters, including MSIX icons and the .ico for the executable/titlebar/taskbar. Source archive remains tracked; workflows install its assets before build, without regenerating arbitrary artwork.
+- Use Windows App SDK system Mica backdrops on native ComboBox Popup, flyouts and ContentDialog surfaces; themed semi-translucent brushes give OS fallback.
+- Version 0.1.6.0; packaged x64 MSIX continues to use repository signing certificate.
+
 ## [0.1.5] - 2026-10-11
 - Port Flint 3.4.3's SettingsPage.xaml structure and all original control templates; replace only branded content and wire ExamLex services.
 - Vendor original Flint ThemeDictionary and CustomControlStyle resources (Modern/Round/Classic search, settings radio buttons) under MPL-2.0 with copyright attribution.
