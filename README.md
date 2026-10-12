@@ -2,7 +2,7 @@
   <img src="https://github.com/KiYouJyo/ExamLex/releases/download/v0.2.0/ExamLex-Icon.png" width="128" height="128" alt="ExamLex 应用图标">
 </p>
 <h1 align="center">ExamLex</h1>
-<p align="center">面向 TOEFL 与 IELTS 的 Windows 原生英语考试词典与算分器。</p>
+<p align="center">面向 TOEFL 与 IELTS 的 Windows 原生英语考试词典。</p>
 <p align="center">
   <a href="https://github.com/KiYouJyo/ExamLex/releases/latest"><img src="https://img.shields.io/github/v/release/KiYouJyo/ExamLex?display_name=tag&sort=semver&color=2F81F7&label=Release" alt="Release"></a>
   <a href="https://github.com/KiYouJyo/ExamLex/actions/workflows/ci.yml"><img src="https://github.com/KiYouJyo/ExamLex/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI"></a>
