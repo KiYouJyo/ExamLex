@@ -95,7 +95,7 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="8"/>
+                <ColumnDefinition Width="56"/>
             </Grid.ColumnDefinitions>
             <Rectangle Grid.ColumnSpan="6" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Fill="{ThemeResource ControlElevationBorderBrush}"/>
 

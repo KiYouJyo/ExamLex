@@ -89,7 +89,7 @@
                 <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE174;"
                           FontSize="16" Height="22" Width="22" Opacity="0.8"/>
             </Button>
-            <Button Grid.Column="5" Margin="4,8,8,8" Background="Transparent"
+            <Button Grid.Column="5" Margin="4,8,60,8" Background="Transparent"
                     BorderBrush="Transparent" VerticalAlignment="Center"
                     Click="OnPropertiesClicked" ToolTipService.ToolTip="生词本属性">
                 <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE946;"

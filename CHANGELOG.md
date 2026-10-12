@@ -5,6 +5,7 @@
 - Add the Flint-style fixed bottom back/navigation bar to TOEFL / IELTS score calculator so content remains scrollable without hiding the return control.
 - Replace generated EL placeholder icon tiles with the owner-provided `ExamLex_Complete_Icon_Assets_v3.zip` image masters, including MSIX icons and the .ico for the executable/titlebar/taskbar. Source archive remains tracked; workflows install its assets before build, without regenerating arbitrary artwork.
 - Use Windows App SDK system Mica backdrops on native ComboBox Popup, flyouts and ContentDialog surfaces; themed semi-translucent brushes give OS fallback.
+- Fix pin icon tofu by using Flint's literal E141/E196 XAML glyphs. Use one shared topmost right-aligned pin button that persists across Home, Settings, Calculator, Glossary and glossary word pages, reserving footer space.
 - Version 0.1.6.0; packaged x64 MSIX continues to use repository signing certificate.
 
 ## [0.1.5] - 2026-10-11

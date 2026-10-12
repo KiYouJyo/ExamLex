@@ -109,7 +109,7 @@ public sealed partial class MainWindow : Window
         };
         SearchBox.Style=(Style)Application.Current.Resources[key];
         SearchHint.Visibility=string.IsNullOrEmpty(SearchBox.Text)?Visibility.Visible:Visibility.Collapsed;
-        PinIcon.Glyph=PinToggle.IsChecked==true?"\\uE196":"\\uE141";
+        UpdatePinVisual();
         if(_speaker is not null)_speaker.Volume=_preferences.TtsVolume/100d;
     }
 
@@ -492,11 +492,22 @@ public sealed partial class MainWindow : Window
 
     private void OnGlossaryClicked(object sender,RoutedEventArgs e) => OpenGlossaries();
 
+    private void UpdatePinVisual()
+    {
+        // Flint's two glyphs live in XAML. Never assign literal backslash-u
+        // text: it renders as empty square boxes in Segoe Fluent icons.
+        bool pinned=PinToggle.IsChecked==true;
+        PinNormalIcon.Visibility=pinned?Visibility.Collapsed:Visibility.Visible;
+        PinActiveIcon.Visibility=pinned?Visibility.Visible:Visibility.Collapsed;
+        Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(PinToggle,
+            pinned?"取消窗口置顶":"窗口置顶");
+    }
+
     private void OnPinClicked(object sender,RoutedEventArgs e)
     {
         if(AppWindow.Presenter is OverlappedPresenter presenter)
             presenter.IsAlwaysOnTop=PinToggle.IsChecked==true;
-        PinIcon.Glyph=PinToggle.IsChecked==true?"\\uE196":"\\uE141";
+        UpdatePinVisual();
     }
     private HashSet<string> ReadSavedWords()
     {

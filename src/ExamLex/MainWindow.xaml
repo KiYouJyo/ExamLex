@@ -50,7 +50,7 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="52"/>
             </Grid.ColumnDefinitions>
             <Rectangle Grid.ColumnSpan="5" Height="1" HorizontalAlignment="Stretch"
                        VerticalAlignment="Top" Fill="{ThemeResource ControlElevationBorderBrush}"/>
@@ -78,14 +78,24 @@
                 <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE82D;"
                           FontSize="16" Height="22" Width="22" Opacity="0.8"/>
             </Button>
-            <ToggleButton x:Name="PinToggle" Grid.Column="4" Margin="4,8,8,8"
-                          Background="Transparent" BorderBrush="Transparent" Click="OnPinClicked"
-                          ToolTipService.ToolTip="置顶">
-                <FontIcon x:Name="PinIcon" FontFamily="{StaticResource SymbolThemeFontFamily}"
-                          Glyph="&#xE141;" FontSize="16" Height="22" Width="22" Opacity="0.8"/>
-            </ToggleButton>
+
         </Grid>
         <!-- Page overlays all four rows, as Flint MainFrame spans the top-level Window grid. -->
         <Frame x:Name="ContentFrame" Grid.Row="0" Grid.RowSpan="4" Visibility="Collapsed"/>
+        <!-- Shared window-level pin: always topmost in visual tree and bottom-right,
+             independent of the active Flint-style page and its own navigation bar. -->
+        <ToggleButton x:Name="PinToggle" Grid.Row="0" Grid.RowSpan="4"
+                      HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                      Margin="4,8,8,8" MinWidth="40" MinHeight="36"
+                      Background="Transparent" BorderBrush="Transparent" Click="OnPinClicked"
+                      ToolTipService.ToolTip="窗口置顶" AutomationProperties.Name="窗口置顶">
+          <Grid Width="22" Height="22">
+            <FontIcon x:Name="PinNormalIcon" FontFamily="{StaticResource SymbolThemeFontFamily}"
+                      Glyph="&#xE141;" FontSize="16" Width="22" Height="22" Opacity="0.8"/>
+            <FontIcon x:Name="PinActiveIcon" FontFamily="{StaticResource SymbolThemeFontFamily}"
+                      Glyph="&#xE196;" FontSize="16" Width="22" Height="22" Opacity="0.8"
+                      Visibility="Collapsed"/>
+          </Grid>
+        </ToggleButton>
     </Grid>
 </Window>
