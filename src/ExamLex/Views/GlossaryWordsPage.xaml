@@ -53,6 +53,12 @@
                      VerticalAlignment="Center" TextChanged="OnFilterChanged"/>
         </Grid>
         <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Border x:Name="PropertiesPanel" Visibility="Collapsed" HorizontalAlignment="Right"
+                    VerticalAlignment="Top" Margin="12" Padding="12" CornerRadius="6"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                <TextBlock x:Name="PropertiesSummary" TextWrapping="Wrap"/>
+            </Border>
             <StackPanel x:Name="NoWordsState" HorizontalAlignment="Center"
                         VerticalAlignment="Center" Orientation="Horizontal" Spacing="4">
                 <TextBlock Text="没有找到" FontSize="13" Opacity="0.3"/>

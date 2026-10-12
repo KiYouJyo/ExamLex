@@ -63,6 +63,15 @@ public sealed partial class GlossariesPage : Page
         if((sender as Button)?.DataContext is GlossaryMyModel selected)
             _openWords?.Invoke(selected);
     }
+    private void OnShowAddGlossaryClicked(object sender,RoutedEventArgs e)
+    {
+        InlineCreatePanel.Visibility=Visibility.Visible;
+        CreateGlossaryStatus.Visibility=Visibility.Collapsed;
+        AddGlossaryNameTextBox.Focus(FocusState.Programmatic);
+    }
+    private void OnCancelCreateClicked(object sender,RoutedEventArgs e)=>
+        InlineCreatePanel.Visibility=Visibility.Collapsed;
+
     private void OnCreateGlossaryClicked(object sender,RoutedEventArgs e)
     {
         string title=AddGlossaryNameTextBox.Text.Trim();
@@ -72,7 +81,7 @@ public sealed partial class GlossariesPage : Page
             GlossaryDescription=AddGlossaryDescTextBox.Text.Trim()});
         Directory.CreateDirectory(Path.GetDirectoryName(_file)!);
         File.WriteAllText(_file,JsonSerializer.Serialize(MyGlossaries.ToArray()));
-        AddGlossaryFlyout.Hide();
+        InlineCreatePanel.Visibility=Visibility.Collapsed;
         AddGlossaryNameTextBox.Text="";
         AddGlossaryDescTextBox.Text="";
         RefreshEmpty();

@@ -89,3 +89,37 @@ foreach($entry in $tiles.GetEnumerator()) {
 }
 $logo=Join-Path $Output 'Square150x150Logo.png'
 if(-not (Test-Path $logo) -or -not (Test-Path (Join-Path $Output 'ExamLex.ico'))) { throw 'Incomplete v3 icon extraction.' }
+
+# MSIX uses targetsize-N_altform-unplated assets for taskbar/start icons.
+# Without these, Windows plates a transparent logo over a colored square.
+# Always rasterize from the largest high-resolution owner-provided master;
+# never upscale the 44px MSIX tile.
+$masters=@($meta | Where-Object IsSquare -EQ $true)
+$master=$masters | Sort-Object @{Expression='Area';Descending=$true} | Select-Object -First 1
+if(-not $master) { throw 'Missing square transparent icon master.' }
+Write-Host "HI-DPI MASTER: $($master.File.FullName.Substring($unpacked.Length+1))"
+function Write-IconFromMaster([string]$name,[int]$width,[int]$height) {
+    $img=[Drawing.Image]::FromFile($master.File.FullName)
+    $bitmap=[Drawing.Bitmap]::new($width,$height,[Drawing.Imaging.PixelFormat]::Format32bppArgb)
+    $gr=[Drawing.Graphics]::FromImage($bitmap)
+    try {
+        $gr.Clear([Drawing.Color]::Transparent)
+        $gr.SmoothingMode=[Drawing.Drawing2D.SmoothingMode]::HighQuality
+        $gr.InterpolationMode=[Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+        $gr.PixelOffsetMode=[Drawing.Drawing2D.PixelOffsetMode]::HighQuality
+        $scale=[Math]::Min([double]$width/$img.Width,[double]$height/$img.Height)
+        $ww=[Math]::Max(1,[int][Math]::Round($img.Width*$scale))
+        $hh=[Math]::Max(1,[int][Math]::Round($img.Height*$scale))
+        $gr.DrawImage($img,[Drawing.Rectangle]::new(
+           [int](($width-$ww)/2),[int](($height-$hh)/2),$ww,$hh))
+        $bitmap.Save((Join-Path $Output $name),[Drawing.Imaging.ImageFormat]::Png)
+    } finally { $gr.Dispose();$bitmap.Dispose();$img.Dispose() }
+}
+foreach($pixels in @(16,24,32,44,48,64,96,256)) {
+    Write-IconFromMaster "Square44x44Logo.targetsize-$pixels.png" $pixels $pixels
+    Write-IconFromMaster "Square44x44Logo.targetsize-${pixels}_altform-unplated.png" $pixels $pixels
+}
+foreach($scale in @(100,125,150,200,400)) {
+    $px=[int][Math]::Ceiling(150*$scale/100)
+    Write-IconFromMaster "Square150x150Logo.scale-$scale.png" $px $px
+}

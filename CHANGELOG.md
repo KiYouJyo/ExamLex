@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.8] - 2026-10-12
+- Add owner-supplied HiDPI tile variants and unplated taskbar icon assets so the icon is crisp and transparent.
+- Use themed Fluent Acrylic dropdown surfaces with strong tint and system fallback, instead of opaque gray panels or see-through overlays.
+- Remove all ContentDialog and create-glossary Flyout calls. Show errors and update states inline in Flint's existing About cards; spinner is inside each check-update button.
+- Download and validate official signed ExamLex MSIX releases, then offer a Restart & Update button. Lexicon updates also finish with a restart button.
+- Implement per-user startup registration, global hotkeys, full/compact activation, close-to-tray with Show/Exit menu, installed TTS voice selection and volume.
+- Persist all existing Flint settings, including glossary switch, English definitions, search style and theme.
+- CI still verifies signed MSIX identity, install/uninstall, icon assets and unit tests. Actual theme/transparency appearance requires Windows desktop verification.
+
 ## [0.1.7] - 2026-10-12
 - Remove the overlapping home header from all internal Flint pages; give each page its own draggable header.
 - Wire the calculator's footer back button to return to the dictionary homepage, and restore home title-bar binding on return.

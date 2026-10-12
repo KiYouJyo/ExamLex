@@ -154,7 +154,7 @@
                     <labs:SettingsCard.Description>
                         <TextBlock x:Name="StartupDescTextBlock" Text="登录到 Windows 时自动启动ExamLex"/>
                     </labs:SettingsCard.Description>
-                    <ToggleSwitch x:Name="StartupSettingToggleSwitch" MinWidth="0" Background="Transparent" IsEnabled="False"/>
+                    <ToggleSwitch x:Name="StartupSettingToggleSwitch" MinWidth="0" Background="Transparent" Toggled="OnPreferenceChanged"/>
                 </labs:SettingsCard>
 
                 <!--快捷键设置-->
@@ -168,7 +168,14 @@
                     <labs:SettingsCard.Description>
                         <TextBlock Text="自定义唤醒窗口的快捷键"/>
                     </labs:SettingsCard.Description>
-                    <ToggleSwitch MinWidth="0" IsEnabled="False"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <ComboBox x:Name="HotkeyPresetBox" MinWidth="145" SelectionChanged="OnPreferenceChanged">
+                            <ComboBoxItem Content="Ctrl + Alt + E"/>
+                            <ComboBoxItem Content="Ctrl + Shift + E"/>
+                            <ComboBoxItem Content="Alt + Shift + E"/>
+                        </ComboBox>
+                        <ToggleSwitch x:Name="HotkeyToggle" MinWidth="0" Toggled="OnPreferenceChanged"/>
+                    </StackPanel>
                 </labs:SettingsCard>
 
                 <!--快捷键窗口模式-->
@@ -179,8 +186,8 @@
                     <labs:SettingsCard.Header>
                         <TextBlock Text="快捷窗口"/>
                     </labs:SettingsCard.Header>
-                    <labs:SettingsCard.Description><TextBlock Text="按下快捷键唤出窗口（尚未移植）"/></labs:SettingsCard.Description>
-                    <ComboBox x:Name="WindowModeComboBox" MinWidth="128" SelectedIndex="0" IsEnabled="False">
+                    <labs:SettingsCard.Description><TextBlock Text="按快捷键唤出完整窗口或简洁搜索窗口"/></labs:SettingsCard.Description>
+                    <ComboBox x:Name="WindowModeComboBox" MinWidth="128" SelectionChanged="OnPreferenceChanged">
                         <ComboBoxItem Content="完整"/>
                         <ComboBoxItem Content="简洁"/>
                     </ComboBox>
@@ -208,8 +215,8 @@
                     <labs:SettingsCard.Header>
                         <TextBlock Text="关闭按钮"/>
                     </labs:SettingsCard.Header>
-                    <labs:SettingsCard.Description><TextBlock Text="点击关闭后 ExamLex 将完全退出"/></labs:SettingsCard.Description>
-                    <ComboBox x:Name="CloseModeComboBox" MinWidth="128" SelectedIndex="1" IsEnabled="False">
+                    <labs:SettingsCard.Description><TextBlock Text="选择关闭按钮隐藏到托盘或退出程序"/></labs:SettingsCard.Description>
+                    <ComboBox x:Name="CloseModeComboBox" MinWidth="128" SelectionChanged="OnPreferenceChanged">
                         <ComboBoxItem Content="隐藏至托盘"/>
                         <ComboBoxItem Content="退出"/>
                     </ComboBox>
@@ -310,17 +317,31 @@
 <labs:SettingsExpander x:Name="AboutSettingsCard" Margin="16,2,16,0" HorizontalAlignment="Stretch">
 <labs:SettingsExpander.HeaderIcon><FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE946;"/></labs:SettingsExpander.HeaderIcon>
 <labs:SettingsExpander.Header><TextBlock x:Name="AppVersionText" Text="ExamLex 0.1.5"/></labs:SettingsExpander.Header>
-<labs:SettingsExpander.Description><TextBlock Text="ExamLex 是一款开源的离线英语考试词典"/></labs:SettingsExpander.Description>
-<Button Height="34" Click="OnAppUpdateClicked"><StackPanel Orientation="Horizontal" Spacing="4"><FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE895;" FontSize="14"/><TextBlock Text="检查更新" VerticalAlignment="Center" FontSize="13"/></StackPanel></Button>
+<labs:SettingsExpander.Description>
+    <StackPanel Spacing="2">
+        <TextBlock Text="ExamLex 是一款开源的离线英语考试词典"/>
+        <TextBlock x:Name="AppUpdateStatus" FontSize="12" TextWrapping="Wrap" Visibility="Collapsed"/>
+    </StackPanel>
+</labs:SettingsExpander.Description>
+<Button x:Name="AppUpdateButton" Height="34" Click="OnAppUpdateClicked">
+    <StackPanel Orientation="Horizontal" Spacing="6">
+        <ProgressRing x:Name="AppUpdateRing" Height="16" Width="16" IsActive="False" Visibility="Collapsed"/>
+        <FontIcon x:Name="AppUpdateGlyph" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE895;" FontSize="14"/>
+        <TextBlock x:Name="AppUpdateText" Text="检查更新" FontSize="13" VerticalAlignment="Center"/>
+    </StackPanel></Button>
 <labs:SettingsExpander.Items>
 <labs:SettingsCard HorizontalAlignment="Stretch">
 <labs:SettingsCard.Description><TextBlock Text="前往 GitHub 查看源代码"/></labs:SettingsCard.Description>
-<Button Height="34" Background="Transparent" Click="OnSourceClicked">
-<StackPanel Orientation="Horizontal" HorizontalAlignment="Center"><FontIcon Glyph="&#xE8A7;" FontSize="16" Margin="0,0,8,0"/><TextBlock Text="GitHub 存储库" VerticalAlignment="Center" FontSize="13" Margin="0,0,8,0"/><FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A7;" FontSize="14"/></StackPanel></Button></labs:SettingsCard>
+<Button Height="34" Click="OnSourceClicked">
+<StackPanel Orientation="Horizontal" HorizontalAlignment="Center"><TextBlock Text="GitHub 存储库" VerticalAlignment="Center" FontSize="13" Margin="0,0,8,0"/><FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A7;" FontSize="14"/></StackPanel></Button></labs:SettingsCard>
 <labs:SettingsCard HorizontalAlignment="Stretch"><labs:SettingsCard.Description>
-<StackPanel Spacing="2"><TextBlock Text="离线词典数据来自 ExamLex-Lexicon"/><TextBlock x:Name="DatabaseVersionText" Text="未安装" FontSize="11" Opacity="0.6" Visibility="Collapsed"/><TextBlock x:Name="DatabaseUpdateStatus" Text="可单独检查词库更新" FontSize="11" Opacity="0.6" TextWrapping="Wrap" Visibility="Collapsed"/></StackPanel>
+<StackPanel Spacing="2"><TextBlock Text="离线词典数据来自 ExamLex-Lexicon"/><TextBlock x:Name="DatabaseVersionText" Text="未安装" FontSize="11" Opacity="0.6" Visibility="Collapsed"/><TextBlock x:Name="DatabaseUpdateStatus" Text="可单独检查词库更新" FontSize="11" Opacity="0.8" TextWrapping="Wrap" Visibility="Collapsed"/></StackPanel>
 </labs:SettingsCard.Description><Button x:Name="DatabaseUpdateButton" Height="34" Click="OnDatabaseUpdateClicked">
-<StackPanel Orientation="Horizontal"><TextBlock Text="检查更新" VerticalAlignment="Center" FontSize="13" Margin="0,0,8,0"/><FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A7;" FontSize="14"/></StackPanel>
+<StackPanel Orientation="Horizontal" Spacing="6">
+<ProgressRing x:Name="DatabaseUpdateRing" Height="16" Width="16" Visibility="Collapsed" IsActive="False"/>
+<TextBlock x:Name="DatabaseUpdateText" Text="检查更新" FontSize="13" VerticalAlignment="Center"/>
+<FontIcon x:Name="DatabaseUpdateGlyph" FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8A7;" FontSize="14"/>
+</StackPanel>
 </Button></labs:SettingsCard></labs:SettingsExpander.Items></labs:SettingsExpander>
 
 <TextBlock x:Name="CopyrightHeaderTextBlock" Text="©2026 ExamLex contributors · Flint UI © sh0ckj0ckey" FontSize="12" FontFamily="Consolas" FontWeight="Light" Opacity="0.5" Margin="20,8,0,8"/>

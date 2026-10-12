@@ -35,3 +35,9 @@
 - [x] Restore Flint default 580 × 386 DIP viewport and original homepage structure
 - [ ] Port the upstream system hotkey, startup task, and tray lifecycle without stub toggles
 - [ ] Complete manual visual comparison on 100%, 125%, 150%, 200% Windows scales
+
+## 0.1.8
+- [x] Native startup, hotkeys, compact mode and tray close behavior
+- [x] In-page check/download/restart updates with no modal dialogs
+- [x] User-provided transparent unplated taskbar icon resources and HiDPI tiles
+- [ ] User visual acceptance for Acrylic menus on Windows 10/11 light/dark and 100-200% scaling

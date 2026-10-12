@@ -26,6 +26,9 @@ public sealed partial class MainWindow : Window
     private bool _sized;
     private MediaPlayer? _speaker;
     private GlossaryMyModel? _selectedGlossary;
+    private WindowIntegrationService? _windows;
+    private bool _exitRequested;
+    private bool _compactHotkeyWindow;
 
     public MainWindow()
     {
@@ -45,6 +48,15 @@ public sealed partial class MainWindow : Window
         _glossaryPath=Path.Combine(_dictionary.DataDirectory,"glossary.json");
         _savedWords=ReadSavedWords();
         ApplyPreferences();
+        _windows=new WindowIntegrationService(this,_preferences);
+        AppWindow.Closing+=(_,args)=>
+        {
+            if(!_exitRequested&&_preferences.CloseMode==0)
+            {
+                args.Cancel=true;
+                _windows?.HideToTray();
+            }
+        };
         Activated+=OnWindowActivated;
         Closed+=OnWindowClosed;
     }
@@ -55,7 +67,8 @@ public sealed partial class MainWindow : Window
     private void OnWindowClosed(object sender, WindowEventArgs e)
     {
         // Match Flint's persisted logical window dimensions rather than saving raw physical pixels.
-        if (!_sized) return;
+        _windows?.Dispose();
+        if (!_sized || _compactHotkeyWindow) return;
         try
         {
             uint dpi = GetDpiForWindow(WinRT.Interop.WindowNative.GetWindowHandle(this));
@@ -115,6 +128,9 @@ public sealed partial class MainWindow : Window
         SearchBox.Style=(Style)Application.Current.Resources[key];
         SearchHint.Visibility=string.IsNullOrEmpty(SearchBox.Text)?Visibility.Visible:Visibility.Collapsed;
         if(_speaker is not null)_speaker.Volume=_preferences.TtsVolume/100d;
+        _windows?.Apply();
+        if(GlossaryButton is not null)
+            GlossaryButton.IsEnabled=_preferences.EnableGlossary;
     }
 
     private void NavigateTo(Type type,string title)
@@ -142,7 +158,7 @@ public sealed partial class MainWindow : Window
         if(ContentFrame.Content is ScoreCalculatorPage calculator)
             calculator.Initialize(ShowHome);
         if(ContentFrame.Content is SettingsPage settings)
-            settings.Initialize(_preferences,_dictionary,ApplyPreferences,OnDictionaryChanged,ShowHome);
+            settings.Initialize(_preferences,_dictionary,ApplyPreferences,OnDictionaryChanged,ShowHome,ExitFromTray);
         if(ContentFrame.Content is GlossariesPage glossaries)
             glossaries.Initialize(_savedWords,ShowHome,OpenGlossaryWords);
         if(ContentFrame.Content is GlossaryWordsPage glossaryWords && _selectedGlossary is not null)
@@ -489,6 +505,8 @@ public sealed partial class MainWindow : Window
         try
         {
             using var synth=new SpeechSynthesizer();
+            var voice=SpeechSynthesizer.AllVoices.FirstOrDefault(v=>v.Id==_preferences.TtsVoiceId);
+            if(voice is not null)synth.Voice=voice;
             var speech=await synth.SynthesizeTextToStreamAsync(word);
             _speaker ??= new MediaPlayer();
             _speaker.Volume=_preferences.TtsVolume/100d;
@@ -505,7 +523,35 @@ public sealed partial class MainWindow : Window
         NavigateTo(typeof(GlossaryWordsPage),"Glossary");
     }
 
-    private void OnGlossaryClicked(object sender,RoutedEventArgs e) => OpenGlossaries();
+    private void OnGlossaryClicked(object sender,RoutedEventArgs e)
+    {
+        if(_preferences.EnableGlossary)OpenGlossaries();
+    }
+
+    public void ExitFromTray()
+    {
+        _exitRequested=true;
+        _windows?.Dispose();
+        Close();
+    }
+
+    public void ActivateHotkeyMode(bool compact)
+    {
+        _windows?.Restore();
+        ShowHome();
+        double scale=GetDpiForWindow(WinRT.Interop.WindowNative.GetWindowHandle(this))/96d;
+        _compactHotkeyWindow=compact;
+        if(AppWindow.Presenter is OverlappedPresenter presenter)
+            presenter.PreferredMinimumHeight=(int)Math.Round((compact?200:386)*scale);
+        AppWindow.Resize(new Windows.Graphics.SizeInt32(
+            (int)Math.Round((compact?580:_preferences.MainWindowWidth)*scale),
+            (int)Math.Round((compact?200:_preferences.MainWindowHeight)*scale)));
+        var area=DisplayArea.GetFromWindowId(AppWindow.Id,DisplayAreaFallback.Nearest).WorkArea;
+        AppWindow.Move(new Windows.Graphics.PointInt32(
+            area.X+Math.Max(0,(area.Width-AppWindow.Size.Width)/2),
+            area.Y+Math.Max(0,(area.Height-AppWindow.Size.Height)/2)));
+        SearchBox.Focus(FocusState.Programmatic);
+    }
 
     private HashSet<string> ReadSavedWords()
     {

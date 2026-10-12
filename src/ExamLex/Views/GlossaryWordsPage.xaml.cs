@@ -40,14 +40,10 @@ public sealed partial class GlossaryWordsPage : Page
     }
     private void OnBackClicked(object sender,RoutedEventArgs e)=>_back?.Invoke();
     private void OnSortClicked(object sender,RoutedEventArgs e){_reverse=!_reverse;Render();}
-    private async void OnPropertiesClicked(object sender,RoutedEventArgs e)
+    private void OnPropertiesClicked(object sender,RoutedEventArgs e)
     {
-        await MicaSurfaceService.ShowAsync(new ContentDialog
-        {
-            XamlRoot=XamlRoot,Title="生词本属性",
-            Content=new TextBlock{Text=$"{GlossaryTitle.Text}\n{_description}\n共 {_words.Count} 个单词",
-                TextWrapping=TextWrapping.Wrap},
-            CloseButtonText="返回"
-        });
+        PropertiesPanel.Visibility=PropertiesPanel.Visibility==Visibility.Visible
+            ?Visibility.Collapsed:Visibility.Visible;
+        PropertiesSummary.Text=$"{GlossaryTitle.Text} · {_description} · {_words.Count} 个单词";
     }
 }
