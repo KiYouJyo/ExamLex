@@ -109,10 +109,14 @@ jobs:
             foreach ($part in @('AppxManifest.xml','AppxBlockMap.xml','AppxSignature.p7x')) {
               if (-not $archive.GetEntry($part)) { throw "Missing MSIX entry: $part" }
             }
-            $dbEntry = @($archive.Entries | Where-Object { $_.FullName.Replace('\\','/') -match 'Assets/Lexicon/examlex-lexicon\\.db$' })
-            $manifestEntry = @($archive.Entries | Where-Object { $_.FullName.Replace('\\','/') -match 'Assets/Lexicon/lexicon-manifest\\.json$' })
-            if ($dbEntry.Count -ne 1 -or $manifestEntry.Count -ne 1) { throw 'Lexicon database or manifest missing from MSIX.' }
-            if ($dbEntry[0].Length -lt 1024) { throw 'Lexicon database unexpectedly small.' }
+            $dbEntry = @($archive.Entries | Where-Object { $_.FullName.Replace('\\','/').EndsWith('Assets/Lexicon/examlex-lexicon.db', [StringComparison]::OrdinalIgnoreCase) })
+            $manifestEntry = @($archive.Entries | Where-Object { $_.FullName.Replace('\\','/').EndsWith('Assets/Lexicon/lexicon-manifest.json', [StringComparison]::OrdinalIgnoreCase) })
+            if ($dbEntry.Count -ne 1 -or $manifestEntry.Count -ne 1) {
+              Write-Host 'Actual MSIX lexicon-related entries:'
+              $archive.Entries | Where-Object { $_.FullName -match '(?i)lexicon' } | ForEach-Object { Write-Host $_.FullName }
+              throw 'Lexicon database or manifest missing from MSIX.'
+            }
+            if ($dbEntry[0].Length -lt 1024) { throw 'Bundled lexicon unexpectedly small.' }
             $reader = [IO.StreamReader]::new($archive.GetEntry('AppxManifest.xml').Open())
             try { [xml]$inside = $reader.ReadToEnd() } finally { $reader.Dispose() }
             if ($inside.Package.Identity.Name -ne 'KiYouJyo.ExamLex' -or $inside.Package.Identity.Version -ne '0.2.0.0' -or $inside.Package.Identity.Publisher -ne $env:EXAMLEX_PUBLISHER) { throw 'Package identity mismatch.' }
