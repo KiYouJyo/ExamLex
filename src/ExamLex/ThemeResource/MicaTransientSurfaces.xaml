@@ -6,29 +6,29 @@
  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <ResourceDictionary.ThemeDictionaries>
     <ResourceDictionary x:Key="Dark">
-      <AcrylicBrush x:Key="ComboBoxDropDownBackground" BackgroundSource="HostBackdrop"
+      <AcrylicBrush x:Key="ComboBoxDropDownBackground"
          TintColor="#212A30" TintOpacity="0.95" TintLuminosityOpacity="0.94"
          FallbackColor="#26343A"/>
-      <AcrylicBrush x:Key="FlyoutPresenterBackground" BackgroundSource="HostBackdrop"
+      <AcrylicBrush x:Key="FlyoutPresenterBackground"
          TintColor="#212A30" TintOpacity="0.95" TintLuminosityOpacity="0.94"
          FallbackColor="#26343A"/>
-      <AcrylicBrush x:Key="MenuFlyoutPresenterBackground" BackgroundSource="HostBackdrop"
+      <AcrylicBrush x:Key="MenuFlyoutPresenterBackground"
          TintColor="#212A30" TintOpacity="0.95" TintLuminosityOpacity="0.94"
          FallbackColor="#26343A"/>
     </ResourceDictionary>
     <ResourceDictionary x:Key="Light">
-      <AcrylicBrush x:Key="ComboBoxDropDownBackground" BackgroundSource="HostBackdrop"
+      <AcrylicBrush x:Key="ComboBoxDropDownBackground"
          TintColor="#F0FAFD" TintOpacity="0.96" TintLuminosityOpacity="0.95"
          FallbackColor="#F0F7FA"/>
-      <AcrylicBrush x:Key="FlyoutPresenterBackground" BackgroundSource="HostBackdrop"
+      <AcrylicBrush x:Key="FlyoutPresenterBackground"
          TintColor="#F0FAFD" TintOpacity="0.96" TintLuminosityOpacity="0.95"
          FallbackColor="#F0F7FA"/>
-      <AcrylicBrush x:Key="MenuFlyoutPresenterBackground" BackgroundSource="HostBackdrop"
+      <AcrylicBrush x:Key="MenuFlyoutPresenterBackground"
          TintColor="#F0FAFD" TintOpacity="0.96" TintLuminosityOpacity="0.95"
          FallbackColor="#F0F7FA"/>
     </ResourceDictionary>
     <ResourceDictionary x:Key="Default">
-      <AcrylicBrush x:Key="ComboBoxDropDownBackground" BackgroundSource="HostBackdrop"
+      <AcrylicBrush x:Key="ComboBoxDropDownBackground"
          TintColor="#212A30" TintOpacity="0.95" TintLuminosityOpacity="0.94"
          FallbackColor="#26343A"/>
     </ResourceDictionary>
