@@ -109,95 +109,16 @@ jobs:
             foreach ($part in @('AppxManifest.xml','AppxBlockMap.xml','AppxSignature.p7x')) {
               if (-not $archive.GetEntry($part)) { throw "Missing MSIX entry: $part" }
             }
-
-            $dbEntry = @($archive.Entries | Where-Object { $_.FullName.Replace('\\','/') -match 'Assets/Lexicon/examlex-lexicon\\.db
-            try { [xml]$inside = $reader.ReadToEnd() } finally { $reader.Dispose() }
-            if ($inside.Package.Identity.Name -ne 'KiYouJyo.ExamLex' -or $inside.Package.Identity.Version -ne '0.2.0.0' -or $inside.Package.Identity.Publisher -ne $env:EXAMLEX_PUBLISHER) { throw 'Package identity mismatch.' }
-          }
-          finally { $archive.Dispose() }
-          Copy-Item src/ExamLex/Assets/Square150x150Logo.png (Join-Path $env:EXAMLEX_OUTPUT 'ExamLex-Icon.png') -Force
-          Copy-Item packaging/INSTALL.md (Join-Path $env:EXAMLEX_OUTPUT 'INSTALL.md')
-          @('ExamLex_0.2.0.0_x64.msix','ExamLex_0.2.0_public.cer') | ForEach-Object {
-            $hash = (Get-FileHash (Join-Path $env:EXAMLEX_OUTPUT $_) -Algorithm SHA256).Hash.ToLowerInvariant()
-            "$hash *$_"
-          } | Set-Content (Join-Path $env:EXAMLEX_OUTPUT 'SHA256SUMS.txt') -Encoding ascii
-          Write-Host 'MSIX signed; identity, payload and checksums validated.'
-
-      - name: Install and unregister MSIX smoke test
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $cert = Join-Path $env:EXAMLEX_OUTPUT 'ExamLex_0.2.0_public.cer'
-          $package = Join-Path $env:EXAMLEX_OUTPUT 'ExamLex_0.2.0.0_x64.msix'
-          Import-Certificate -FilePath $cert -CertStoreLocation Cert:\LocalMachine\TrustedPeople | Out-Null
-          try {
-            Add-AppxPackage -Path $package -ErrorAction Stop
-            $installed = Get-AppxPackage -Name 'KiYouJyo.ExamLex'
-            if (-not $installed -or [string]$installed.Version -ne '0.2.0.0') { throw 'MSIX installation verification failed.' }
-            Remove-AppxPackage -Package $installed.PackageFullName
-            Write-Host 'MSIX install/registration smoke test passed.'
-          }
-          finally {
-            Get-ChildItem Cert:\LocalMachine\TrustedPeople |
-              Where-Object Thumbprint -eq $env:EXAMLEX_THUMBPRINT |
-              ForEach-Object { Remove-Item -LiteralPath $_.PSPath -Force }
-          }
-
-      - name: Upload signed MSIX acceptance package
-        uses: actions/upload-artifact@v4
-        with:
-          name: ExamLex-v0.2.0-MSIX-acceptance
-          path: ${{ env.EXAMLEX_OUTPUT }}/*
-          if-no-files-found: error
-          retention-days: 30
- })
-            $manifestEntry = @($archive.Entries | Where-Object { $_.FullName.Replace('\\','/') -match 'Assets/Lexicon/lexicon-manifest\\.json
-            try { [xml]$inside = $reader.ReadToEnd() } finally { $reader.Dispose() }
-            if ($inside.Package.Identity.Name -ne 'KiYouJyo.ExamLex' -or $inside.Package.Identity.Version -ne '0.2.0.0' -or $inside.Package.Identity.Publisher -ne $env:EXAMLEX_PUBLISHER) { throw 'Package identity mismatch.' }
-          }
-          finally { $archive.Dispose() }
-          Copy-Item packaging/INSTALL.md (Join-Path $env:EXAMLEX_OUTPUT 'INSTALL.md')
-          @('ExamLex_0.2.0.0_x64.msix','ExamLex_0.2.0_public.cer') | ForEach-Object {
-            $hash = (Get-FileHash (Join-Path $env:EXAMLEX_OUTPUT $_) -Algorithm SHA256).Hash.ToLowerInvariant()
-            "$hash *$_"
-          } | Set-Content (Join-Path $env:EXAMLEX_OUTPUT 'SHA256SUMS.txt') -Encoding ascii
-          Write-Host 'MSIX signed; identity, payload and checksums validated.'
-
-      - name: Install and unregister MSIX smoke test
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $cert = Join-Path $env:EXAMLEX_OUTPUT 'ExamLex_0.2.0_public.cer'
-          $package = Join-Path $env:EXAMLEX_OUTPUT 'ExamLex_0.2.0.0_x64.msix'
-          Import-Certificate -FilePath $cert -CertStoreLocation Cert:\LocalMachine\TrustedPeople | Out-Null
-          try {
-            Add-AppxPackage -Path $package -ErrorAction Stop
-            $installed = Get-AppxPackage -Name 'KiYouJyo.ExamLex'
-            if (-not $installed -or [string]$installed.Version -ne '0.2.0.0') { throw 'MSIX installation verification failed.' }
-            Remove-AppxPackage -Package $installed.PackageFullName
-            Write-Host 'MSIX install/registration smoke test passed.'
-          }
-          finally {
-            Get-ChildItem Cert:\LocalMachine\TrustedPeople |
-              Where-Object Thumbprint -eq $env:EXAMLEX_THUMBPRINT |
-              ForEach-Object { Remove-Item -LiteralPath $_.PSPath -Force }
-          }
-
-      - name: Upload signed MSIX acceptance package
-        uses: actions/upload-artifact@v4
-        with:
-          name: ExamLex-v0.2.0-MSIX-acceptance
-          path: ${{ env.EXAMLEX_OUTPUT }}/*
-          if-no-files-found: error
-          retention-days: 30
- })
-            if ($dbEntry.Count -ne 1 -or $manifestEntry.Count -ne 1) { throw 'Bundled Lexicon SQLite or manifest is missing from signed MSIX.' }
-            if ($dbEntry[0].Length -lt 1024) { throw 'Bundled lexicon appears empty.' }
+            $dbEntry = @($archive.Entries | Where-Object { $_.FullName.Replace('\\','/') -match 'Assets/Lexicon/examlex-lexicon\\.db$' })
+            $manifestEntry = @($archive.Entries | Where-Object { $_.FullName.Replace('\\','/') -match 'Assets/Lexicon/lexicon-manifest\\.json$' })
+            if ($dbEntry.Count -ne 1 -or $manifestEntry.Count -ne 1) { throw 'Lexicon database or manifest missing from MSIX.' }
+            if ($dbEntry[0].Length -lt 1024) { throw 'Lexicon database unexpectedly small.' }
             $reader = [IO.StreamReader]::new($archive.GetEntry('AppxManifest.xml').Open())
             try { [xml]$inside = $reader.ReadToEnd() } finally { $reader.Dispose() }
             if ($inside.Package.Identity.Name -ne 'KiYouJyo.ExamLex' -or $inside.Package.Identity.Version -ne '0.2.0.0' -or $inside.Package.Identity.Publisher -ne $env:EXAMLEX_PUBLISHER) { throw 'Package identity mismatch.' }
           }
           finally { $archive.Dispose() }
+          Copy-Item src/ExamLex/Assets/Square150x150Logo.png (Join-Path $env:EXAMLEX_OUTPUT 'ExamLex-Icon.png') -Force
           Copy-Item packaging/INSTALL.md (Join-Path $env:EXAMLEX_OUTPUT 'INSTALL.md')
           @('ExamLex_0.2.0.0_x64.msix','ExamLex_0.2.0_public.cer') | ForEach-Object {
             $hash = (Get-FileHash (Join-Path $env:EXAMLEX_OUTPUT $_) -Algorithm SHA256).Hash.ToLowerInvariant()
