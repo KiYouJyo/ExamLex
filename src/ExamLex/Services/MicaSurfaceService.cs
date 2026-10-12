@@ -35,10 +35,10 @@ public static class MicaSurfaceService
         // Fluent transient surfaces use a proper system backdrop; they should
         // not share the ComboBox transparent resource override.
         if (item is Button button && button.Flyout is { } flyout)
-            flyout.SystemBackdrop ??= new MicaBackdrop { Kind = MicaKind.BaseAlt };
+            flyout.SystemBackdrop ??= new MicaBackdrop();
         if (item is FrameworkElement element &&
             FlyoutBase.GetAttachedFlyout(element) is { } attached)
-            attached.SystemBackdrop ??= new MicaBackdrop { Kind = MicaKind.BaseAlt };
+            attached.SystemBackdrop ??= new MicaBackdrop();
 
         int count = VisualTreeHelper.GetChildrenCount(item);
         for (int i = 0; i < count; i++)
@@ -59,7 +59,7 @@ public static class MicaSurfaceService
     private static void ApplyMicaToDialogPopups(XamlRoot root)
     {
         foreach (var popup in VisualTreeHelper.GetOpenPopupsForXamlRoot(root))
-            popup.SystemBackdrop ??= new MicaBackdrop { Kind = MicaKind.BaseAlt };
+            popup.SystemBackdrop ??= new MicaBackdrop();
     }
 
     public static async Task<ContentDialogResult> ShowAsync(ContentDialog dialog)

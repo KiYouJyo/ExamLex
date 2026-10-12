@@ -4,7 +4,7 @@
 - Remove the overlapping home header from all internal Flint pages; give each page its own draggable header.
 - Wire the calculator's footer back button to return to the dictionary homepage, and restore home title-bar binding on return.
 - Fix score-calculator footer rule spanning only 2 of 3 columns (pin column was omitted).
-- Keep selection dropdowns completely opaque. Modal dialogs now apply a Mica BaseAlt system backdrop with a tinted translucent content panel; solid-color fallbacks are controlled by Windows.
+- Keep selection dropdowns completely opaque. Modal dialogs now apply a Mica system backdrop with a tinted translucent content panel; solid-color fallbacks are controlled by Windows.
 - Make packaged Start tile background transparent. The owner-provided v3 PNG/ICO artwork was already alpha-transparent; square backdrop came from the MSIX VisualElements BackgroundColor setting.
 - Signed package version 0.1.7.0; full Windows CI and MSIX install/uninstall acceptance required before delivery.
 
