@@ -82,7 +82,7 @@ public sealed partial class SettingsPage : Page
             double maxOffset = Math.Min(160, viewer.ScrollableHeight);
             if (maxOffset <= 0) return;
             double opacity = Math.Clamp(viewer.VerticalOffset/maxOffset,0,1);
-            SettingsPageHeaderTitleGrid.Opacity=opacity;
+            PageDragRegion.Opacity=opacity;
             SettingsPageHeaderSeperatorLineBorder.Opacity=opacity;
         }
     }

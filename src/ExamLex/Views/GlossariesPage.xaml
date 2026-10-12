@@ -22,7 +22,7 @@
         </Grid.RowDefinitions>
 
         <!--Title-->
-        <Grid Grid.Row="0" Background="Transparent">
+        <Grid x:Name="PageDragRegion" Grid.Row="0" Background="Transparent">
             <TextBlock Text="Glossary" FontFamily="Times New Roman" Margin="20,0,0,4" FontWeight="Bold" FontSize="20" VerticalAlignment="Bottom" Opacity="0.9"/>
         </Grid>
 

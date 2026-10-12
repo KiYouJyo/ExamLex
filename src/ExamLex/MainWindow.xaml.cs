@@ -119,11 +119,14 @@ public sealed partial class MainWindow : Window
 
     private void NavigateTo(Type type,string title)
     {
+        // The child Page owns its Flint-style 38-DIP header. Never leave the
+        // dictionary title visible beneath the transparent Frame.
+        TitleDragRegion.Visibility=Visibility.Collapsed;
         SearchHost.Visibility=Visibility.Collapsed;
         HomePanel.Visibility=Visibility.Collapsed;
         Footer.Visibility=Visibility.Collapsed;
         ContentFrame.Visibility=Visibility.Visible;
-        BackButton.Visibility=Visibility.Visible;
+        BackButton.Visibility=Visibility.Collapsed;
         HeaderTextBlock.Text=type==typeof(SettingsPage)?"Settings":title;
         HeaderTextBlock.FontFamily=new Microsoft.UI.Xaml.Media.FontFamily(
             type==typeof(SettingsPage)?"Times New Roman":"Segoe UI");
@@ -132,6 +135,12 @@ public sealed partial class MainWindow : Window
         HeaderTextBlock.VerticalAlignment=VerticalAlignment.Bottom;
         BackButton.Visibility=type==typeof(SettingsPage)?Visibility.Collapsed:Visibility.Visible;
         ContentFrame.Navigate(type);
+        // Associate native draggable title region with the active Flint page.
+        if (ContentFrame.Content is FrameworkElement childPage &&
+            childPage.FindName("PageDragRegion") is UIElement childTitle)
+            SetTitleBar(childTitle);
+        if(ContentFrame.Content is ScoreCalculatorPage calculator)
+            calculator.Initialize(ShowHome);
         if(ContentFrame.Content is SettingsPage settings)
             settings.Initialize(_preferences,_dictionary,ApplyPreferences,OnDictionaryChanged,ShowHome);
         if(ContentFrame.Content is GlossariesPage glossaries)
@@ -147,6 +156,8 @@ public sealed partial class MainWindow : Window
     {
         ContentFrame.Visibility=Visibility.Collapsed;
         ContentFrame.Content=null;
+        TitleDragRegion.Visibility=Visibility.Visible;
+        SetTitleBar(TitleDragRegion);
         Footer.Visibility=Visibility.Visible;
         HomePanel.Visibility=Visibility.Visible;
         SearchHost.Visibility=Visibility.Visible;

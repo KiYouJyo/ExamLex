@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.7] - 2026-10-12
+- Remove the overlapping home header from all internal Flint pages; give each page its own draggable header.
+- Wire the calculator's footer back button to return to the dictionary homepage, and restore home title-bar binding on return.
+- Fix score-calculator footer rule spanning only 2 of 3 columns (pin column was omitted).
+- Keep selection dropdowns completely opaque. Modal dialogs now apply a Mica BaseAlt system backdrop with a tinted translucent content panel; solid-color fallbacks are controlled by Windows.
+- Make packaged Start tile background transparent. The owner-provided v3 PNG/ICO artwork was already alpha-transparent; square backdrop came from the MSIX VisualElements BackgroundColor setting.
+- Signed package version 0.1.7.0; full Windows CI and MSIX install/uninstall acceptance required before delivery.
+
 ## [0.1.6] - 2026-10-12
 - Fix duplicate window/header back arrow on every internal page: original Flint title is only shown for the dictionary homepage, and each internal page owns its own title.
 - Add the Flint-style fixed bottom back/navigation bar to TOEFL / IELTS score calculator so content remains scrollable without hiding the return control.
