@@ -100,10 +100,10 @@ public static class AppUpdateService
             : "Start-Sleep -Seconds 2; Start-Process explorer.exe -ArgumentList 'shell:AppsFolder\\"
               +family+"!App'";
         string encoded=Convert.ToBase64String(Encoding.Unicode.GetBytes(script));
-        Process.Start(new ProcessStartInfo {
+        if(Process.Start(new ProcessStartInfo {
             FileName="powershell.exe",
             Arguments="-NoProfile -NonInteractive -WindowStyle Hidden -EncodedCommand "+encoded,
             CreateNoWindow=true,UseShellExecute=false
-        })??throw new InvalidOperationException("无法重启更新程序。");
+        }) is null)throw new InvalidOperationException("无法重启更新程序。");
     }
 }
